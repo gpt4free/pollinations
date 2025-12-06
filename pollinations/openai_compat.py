@@ -1,4 +1,4 @@
-"""OpenAI-compatible API interfaces for Polinations."""
+"""OpenAI-compatible API interfaces for Pollinations."""
 
 from typing import Optional, List, Dict, Any, Union, Iterator
 import json

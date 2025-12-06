@@ -1,12 +1,12 @@
-# Polinations
+# Pollinations
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.7+](https://img.shields.io/badge/python-3.7+-blue.svg)](https://www.python.org/downloads/)
 [![PyPI version](https://badge.fury.io/py/pollinations-client.svg)](https://badge.fury.io/py/pollinations-client)
 
-A Python wrapper for [Polinations AI](https://pollinations.ai/) - Free text and image generation APIs.
+A Python wrapper for [Pollinations AI](https://pollinations.ai/) - Free text and image generation APIs.
 
-Polinations provides free, unlimited access to various AI models for text and image generation without requiring API keys.
+Pollinations provides free, unlimited access to various AI models for text and image generation without requiring API keys.
 
 ## Features
 
@@ -43,10 +43,10 @@ pip install -e .
 from pollinations import Pollinations
 
 # Create a client (no API key required for free tier)
-client = Polinations()
+client = Pollinations()
 
 # Or with API key for gen.pollinations.ai
-# client = Polinations(api_key="your-api-key")
+# client = Pollinations(api_key="your-api-key")
 
 # Chat completion (OpenAI-compatible)
 response = client.chat.completions.create(
@@ -85,7 +85,7 @@ print(response.data[0]["url"])
 from pollinations import Pollinations
 
 # Create a client
-client = Polinations()
+client = Pollinations()
 
 # Generate text
 response = client.generate_text("What is the meaning of life?")
@@ -119,7 +119,7 @@ print(response)
 from pollinations import Pollinations
 
 # Create a client
-client = Polinations()
+client = Pollinations()
 
 # Generate image (returns URL)
 image_url = client.generate_image("A beautiful sunset over mountains")
@@ -144,11 +144,11 @@ client.download_image(
 
 ## API Reference
 
-### Polinations Client
+### Pollinations Client
 
 #### `__init__(timeout=30, api_key=None)`
 
-Create a new Polinations client.
+Create a new Pollinations client.
 
 **Parameters:**
 - `timeout` (int): Request timeout in seconds (default: 30)
@@ -236,7 +236,7 @@ Generate an image from a text prompt.
 - `width` (int, optional): Image width in pixels
 - `height` (int, optional): Image height in pixels
 - `seed` (int, optional): Random seed for reproducibility
-- `nologo` (bool): If True, removes Polinations logo from image
+- `nologo` (bool): If True, removes Pollinations logo from image
 - `private` (bool): If True, image won't be published to feed
 - `enhance` (bool): If True, automatically enhances the prompt
 
@@ -281,10 +281,10 @@ The client supports optional API keys for `gen.pollinations.ai`:
 
 ```python
 # Without API key (free tier, uses image.pollinations.ai and text.pollinations.ai)
-client = Polinations()
+client = Pollinations()
 
 # With API key (uses gen.pollinations.ai endpoints)
-client = Polinations(api_key="your-api-key-here")
+client = Pollinations(api_key="your-api-key-here")
 ```
 
 When an API key is provided:
@@ -297,7 +297,7 @@ When an API key is provided:
 ```python
 from pollinations import Pollinations, APIError, ModelNotFoundError
 
-client = Polinations()
+client = Pollinations()
 
 try:
     response = client.generate_text("Hello!")
@@ -324,7 +324,7 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## Disclaimer
 
-This is an unofficial wrapper for Polinations AI. For official information about the service, visit [pollinations.ai](https://pollinations.ai/).
+This is an unofficial wrapper for Pollinations AI. For official information about the service, visit [pollinations.ai](https://pollinations.ai/).
 
 ## Related Projects
 
