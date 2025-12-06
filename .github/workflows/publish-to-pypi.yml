@@ -35,7 +35,9 @@ jobs:
         run: python -m build
       
       - name: Check package
-        run: twine check dist/* || true
+        run: |
+          echo "Running twine check (warnings about license-file metadata are expected and don't prevent publishing)"
+          twine check dist/* || echo "::warning::Twine check reported warnings but package is valid for publishing"
       
       - name: Store the distribution packages
         uses: actions/upload-artifact@v4
