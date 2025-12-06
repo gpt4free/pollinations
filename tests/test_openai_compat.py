@@ -135,14 +135,42 @@ class TestOpenAICompatibility(unittest.TestCase):
         self.assertEqual(response.model, "openai")
         self.assertTrue(mock_post.called)
     
-    def test_chat_completions_stream_not_supported(self):
-        """Test that streaming raises an error."""
-        with self.assertRaises(ValueError) as context:
-            self.client.chat.completions.create(
-                messages=[{"role": "user", "content": "Test"}],
-                stream=True
-            )
-        self.assertIn("Streaming is not supported", str(context.exception))
+    @patch('polinations.client.requests.post')
+    def test_chat_completions_stream_supported(self, mock_post):
+        """Test that streaming is now supported."""
+        # Create a mock streaming response
+        mock_response = Mock()
+        mock_response.ok = True
+        mock_response.status_code = 200
+        
+        # Mock streaming data in SSE format
+        stream_data = [
+            b'data: {"choices":[{"delta":{"role":"assistant","content":""},"finish_reason":null,"index":0}],"id":"test-id","model":"openai","object":"chat.completion.chunk"}',
+            b'data: {"choices":[{"delta":{"content":"Hello"},"finish_reason":null,"index":0}],"id":"test-id","model":"openai","object":"chat.completion.chunk"}',
+            b'data: {"choices":[{"delta":{"content":"!"},"finish_reason":null,"index":0}],"id":"test-id","model":"openai","object":"chat.completion.chunk"}',
+            b'data: {"choices":[{"delta":{},"finish_reason":"stop","index":0}],"id":"test-id","model":"openai","object":"chat.completion.chunk"}',
+        ]
+        
+        mock_response.iter_lines.return_value = stream_data
+        mock_post.return_value = mock_response
+        
+        # Test that streaming works
+        stream = self.client.chat.completions.create(
+            messages=[{"role": "user", "content": "Test"}],
+            stream=True
+        )
+        
+        # Collect chunks
+        chunks = list(stream)
+        
+        # Verify we got chunks
+        self.assertGreater(len(chunks), 0)
+        
+        # Verify first chunk has expected structure
+        first_chunk = chunks[0]
+        self.assertEqual(first_chunk.object, "chat.completion.chunk")
+        self.assertIsNotNone(first_chunk.choices)
+        self.assertEqual(len(first_chunk.choices), 1)
     
     def test_chat_completions_no_user_message(self):
         """Test that missing user message raises an error."""
@@ -151,6 +179,71 @@ class TestOpenAICompatibility(unittest.TestCase):
                 messages=[{"role": "system", "content": "You are helpful"}]
             )
         self.assertIn("At least one user message is required", str(context.exception))
+    
+    @patch('polinations.client.requests.post')
+    def test_generate_text_stream_success(self, mock_post):
+        """Test successful text streaming with native API."""
+        mock_response = Mock()
+        mock_response.ok = True
+        mock_response.status_code = 200
+        
+        # Mock streaming data
+        stream_data = [
+            b'data: {"choices":[{"delta":{"role":"assistant","content":""},"finish_reason":null}],"id":"test","model":"openai"}',
+            b'data: {"choices":[{"delta":{"content":"Test"},"finish_reason":null}],"id":"test","model":"openai"}',
+            b'data: {"choices":[{"delta":{"content":" response"},"finish_reason":null}],"id":"test","model":"openai"}',
+            b'data: {"choices":[{"delta":{},"finish_reason":"stop"}],"id":"test","model":"openai"}',
+        ]
+        
+        mock_response.iter_lines.return_value = stream_data
+        mock_post.return_value = mock_response
+        
+        # Test streaming
+        stream = self.client.generate_text_stream("Test prompt")
+        chunks = list(stream)
+        
+        # Verify chunks
+        self.assertGreater(len(chunks), 0)
+        
+        # Verify content
+        content_chunks = [chunk.choices[0].delta.content for chunk in chunks if chunk.choices[0].delta.content]
+        self.assertIn("Test", content_chunks)
+        self.assertIn(" response", content_chunks)
+    
+    @patch('polinations.client.requests.post')
+    def test_streaming_with_finish_reason(self, mock_post):
+        """Test that finish_reason is properly set in streaming."""
+        mock_response = Mock()
+        mock_response.ok = True
+        mock_response.status_code = 200
+        
+        stream_data = [
+            b'data: {"choices":[{"delta":{"content":"Hello"},"finish_reason":null}]}',
+            b'data: {"choices":[{"delta":{},"finish_reason":"stop"}]}',
+        ]
+        
+        mock_response.iter_lines.return_value = stream_data
+        mock_post.return_value = mock_response
+        
+        stream = self.client.chat.completions.create(
+            messages=[{"role": "user", "content": "Hi"}],
+            stream=True
+        )
+        chunks = list(stream)
+        
+        # Last chunk should have finish_reason
+        last_chunk = chunks[-1]
+        self.assertEqual(last_chunk.choices[0].finish_reason, "stop")
+    
+    @patch('polinations.client.requests.post')
+    def test_streaming_error_handling(self, mock_post):
+        """Test error handling in streaming."""
+        import requests
+        mock_post.side_effect = requests.RequestException("Network error")
+        
+        with self.assertRaises(Exception):
+            stream = self.client.generate_text_stream("Test")
+            list(stream)  # Force evaluation
 
 
 if __name__ == '__main__':

@@ -1,6 +1,7 @@
 """OpenAI-compatible API interfaces for Polinations."""
 
-from typing import Optional, List, Dict, Any, Union
+from typing import Optional, List, Dict, Any, Union, Iterator
+import json
 
 
 class ImageResponse:
@@ -40,6 +41,44 @@ class ChatCompletion:
         self.created = None
         self.model = model or "default"
         self.choices = [ChatCompletionChoice(ChatCompletionMessage("assistant", content))]
+        self.usage = None
+
+
+class ChatCompletionChunkDelta:
+    """OpenAI-compatible chat completion chunk delta."""
+    
+    def __init__(self, content: Optional[str] = None, role: Optional[str] = None):
+        self.content = content
+        self.role = role
+    
+    def to_dict(self):
+        result = {}
+        if self.content is not None:
+            result["content"] = self.content
+        if self.role is not None:
+            result["role"] = self.role
+        return result
+
+
+class ChatCompletionChunkChoice:
+    """OpenAI-compatible chat completion chunk choice."""
+    
+    def __init__(self, delta: ChatCompletionChunkDelta, finish_reason: Optional[str] = None, index: int = 0):
+        self.delta = delta
+        self.finish_reason = finish_reason
+        self.index = index
+
+
+class ChatCompletionChunk:
+    """OpenAI-compatible chat completion chunk for streaming."""
+    
+    def __init__(self, delta: ChatCompletionChunkDelta, model: Optional[str] = None, 
+                 finish_reason: Optional[str] = None, chunk_id: Optional[str] = None):
+        self.id = chunk_id or "chatcmpl-polinations"
+        self.object = "chat.completion.chunk"
+        self.created = None
+        self.model = model or "default"
+        self.choices = [ChatCompletionChunkChoice(delta, finish_reason=finish_reason)]
         self.usage = None
 
 
@@ -113,7 +152,7 @@ class ChatCompletions:
         max_tokens: Optional[int] = None,
         stream: bool = False,
         **kwargs
-    ) -> ChatCompletion:
+    ) -> Union[ChatCompletion, Iterator[ChatCompletionChunk]]:
         """
         Create a chat completion using OpenAI-compatible API.
         
@@ -122,15 +161,13 @@ class ChatCompletions:
             model: Model name to use (optional)
             temperature: Sampling temperature (optional)
             max_tokens: Maximum tokens to generate (optional)
-            stream: Streaming mode (not supported, must be False)
+            stream: Enable streaming mode (optional)
             **kwargs: Additional parameters passed to the underlying API
             
         Returns:
-            ChatCompletion with generated response
+            ChatCompletion with generated response (if stream=False)
+            Iterator of ChatCompletionChunk (if stream=True)
         """
-        if stream:
-            raise ValueError("Streaming is not supported")
-        
         # Extract system message and user prompt
         system = None
         prompt = None
@@ -148,18 +185,32 @@ class ChatCompletions:
         seed = kwargs.pop("seed", None)
         jsonMode = kwargs.pop("json_mode", False) or kwargs.pop("jsonMode", False)
         
-        response = self._client.generate_text(
-            prompt=prompt,
-            model=model,
-            system=system,
-            temperature=temperature,
-            max_tokens=max_tokens,
-            seed=seed,
-            jsonMode=jsonMode,
-            **kwargs
-        )
-        
-        return ChatCompletion(response, model=model)
+        if stream:
+            # Return streaming iterator
+            return self._client.generate_text_stream(
+                prompt=prompt,
+                model=model,
+                system=system,
+                temperature=temperature,
+                max_tokens=max_tokens,
+                seed=seed,
+                jsonMode=jsonMode,
+                **kwargs
+            )
+        else:
+            # Return complete response
+            response = self._client.generate_text(
+                prompt=prompt,
+                model=model,
+                system=system,
+                temperature=temperature,
+                max_tokens=max_tokens,
+                seed=seed,
+                jsonMode=jsonMode,
+                **kwargs
+            )
+            
+            return ChatCompletion(response, model=model)
 
 
 class Chat:
