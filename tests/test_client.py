@@ -1,16 +1,16 @@
-"""Unit tests for Polinations client."""
+"""Unit tests for Pollinations client."""
 
 import unittest
 from unittest.mock import patch, Mock
-from polinations import Polinations, APIError, ModelNotFoundError
+from pollinations import Pollinations, APIError, ModelNotFoundError
 
 
-class TestPolinations(unittest.TestCase):
-    """Test cases for Polinations client."""
+class TestPollinations(unittest.TestCase):
+    """Test cases for Pollinations client."""
     
     def setUp(self):
         """Set up test client."""
-        self.client = Polinations(timeout=30)
+        self.client = Pollinations(timeout=30)
     
     def test_client_initialization(self):
         """Test client initialization."""
@@ -50,7 +50,7 @@ class TestPolinations(unittest.TestCase):
         self.assertIn("hello%20world", url)
         self.assertIn("%23test", url)
     
-    @patch('polinations.client.requests.get')
+    @patch('pollinations.client.requests.get')
     def test_get_image_models_success(self, mock_get):
         """Test successful retrieval of image models."""
         mock_response = Mock()
@@ -64,7 +64,7 @@ class TestPolinations(unittest.TestCase):
         self.assertIn("flux", models)
         mock_get.assert_called_once()
     
-    @patch('polinations.client.requests.get')
+    @patch('pollinations.client.requests.get')
     def test_get_image_models_caching(self, mock_get):
         """Test model caching."""
         mock_response = Mock()
@@ -80,7 +80,7 @@ class TestPolinations(unittest.TestCase):
         self.assertEqual(models1, models2)
         mock_get.assert_called_once()  # Should only call API once
     
-    @patch('polinations.client.requests.get')
+    @patch('pollinations.client.requests.get')
     def test_get_image_models_force_refresh(self, mock_get):
         """Test force refresh of model cache."""
         mock_response = Mock()
@@ -95,7 +95,7 @@ class TestPolinations(unittest.TestCase):
         
         self.assertEqual(mock_get.call_count, 2)
     
-    @patch('polinations.client.requests.get')
+    @patch('pollinations.client.requests.get')
     def test_get_image_models_error(self, mock_get):
         """Test error handling when fetching models."""
         import requests
@@ -106,7 +106,7 @@ class TestPolinations(unittest.TestCase):
         
         self.assertIn("Failed to fetch image models", str(context.exception))
     
-    @patch('polinations.client.requests.post')
+    @patch('pollinations.client.requests.post')
     def test_generate_text_success(self, mock_post):
         """Test successful text generation."""
         mock_response = Mock()
@@ -126,7 +126,7 @@ class TestPolinations(unittest.TestCase):
         self.assertEqual(payload['messages'][0]['role'], 'user')
         self.assertEqual(payload['messages'][0]['content'], 'Hello')
     
-    @patch('polinations.client.requests.post')
+    @patch('pollinations.client.requests.post')
     def test_generate_text_with_params(self, mock_post):
         """Test text generation with parameters."""
         mock_response = Mock()
@@ -156,7 +156,7 @@ class TestPolinations(unittest.TestCase):
         self.assertEqual(payload['messages'][0]['role'], 'system')
         self.assertEqual(payload['messages'][0]['content'], 'You are helpful')
     
-    @patch('polinations.client.requests.post')
+    @patch('pollinations.client.requests.post')
     def test_generate_text_with_zero_max_tokens(self, mock_post):
         """Test that max_tokens=0 is properly handled."""
         mock_response = Mock()
@@ -173,7 +173,7 @@ class TestPolinations(unittest.TestCase):
         self.assertIn('max_tokens', payload)
         self.assertEqual(payload['max_tokens'], 0)
     
-    @patch('polinations.client.requests.post')
+    @patch('pollinations.client.requests.post')
     def test_generate_text_error(self, mock_post):
         """Test error handling in text generation."""
         import requests
@@ -184,7 +184,7 @@ class TestPolinations(unittest.TestCase):
         
         self.assertIn("Failed to generate text", str(context.exception))
     
-    @patch('polinations.client.requests.get')
+    @patch('pollinations.client.requests.get')
     def test_download_image_success(self, mock_get):
         """Test successful image download."""
         mock_response = Mock()

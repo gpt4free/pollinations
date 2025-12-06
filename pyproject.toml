@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "pollinations-client"
 version = "0.1.0"
-description = "Python wrapper for Polinations AI - Free text and image generation APIs"
+description = "Python wrapper for Pollinations AI - Free text and image generation APIs"
 readme = "README.md"
 authors = [
     {name = "gpt4free"}
@@ -25,15 +25,15 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
 ]
-keywords = ["ai", "polinations", "image-generation", "text-generation", "free-api", "gpt4free"]
+keywords = ["ai", "pollinations", "image-generation", "text-generation", "free-api", "gpt4free"]
 dependencies = [
     "requests>=2.31.0",
 ]
 
 [project.urls]
-Homepage = "https://github.com/gpt4free/polinations"
-Repository = "https://github.com/gpt4free/polinations"
-Issues = "https://github.com/gpt4free/polinations/issues"
+Homepage = "https://github.com/gpt4free/pollinations"
+Repository = "https://github.com/gpt4free/pollinations"
+Issues = "https://github.com/gpt4free/pollinations/issues"
 
 [tool.setuptools]
-packages = ["polinations"]
+packages = ["pollinations"]

@@ -5,7 +5,7 @@ This script shows how to use the OpenAI-compatible interface for both
 chat completions and image generation.
 """
 
-from polinations import Polinations
+from pollinations import Pollinations
 
 
 def main():
@@ -15,10 +15,10 @@ def main():
     
     # Initialize client (with or without API key)
     # Without API key (uses free public API)
-    client = Polinations()
+    client = Pollinations()
     
     # With API key (uses gen.pollinations.ai)
-    # client = Polinations(api_key="your-api-key-here")
+    # client = Pollinations(api_key="your-api-key-here")
     
     # ========================================================================
     # Chat Completions API (OpenAI-compatible)

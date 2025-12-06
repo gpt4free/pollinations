@@ -9,7 +9,7 @@ The Polinations client now provides OpenAI-compatible interfaces that allow it t
 ## Quick Start
 
 ```python
-from polinations import Polinations
+from pollinations import Pollinations
 
 # Initialize client (with or without API key)
 client = Polinations()  # Free tier
@@ -112,7 +112,7 @@ for chunk in stream:
 
 ```python
 ChatCompletion(
-    id="chatcmpl-polinations",
+    id="chatcmpl-pollinations",
     object="chat.completion",
     created=None,
     model="openai",
@@ -136,7 +136,7 @@ Each chunk is a `ChatCompletionChunk`:
 
 ```python
 ChatCompletionChunk(
-    id="chatcmpl-polinations",
+    id="chatcmpl-pollinations",
     object="chat.completion.chunk",
     created=None,
     model="openai",
@@ -250,7 +250,7 @@ response = client.images.generate(
 ### After (Polinations)
 
 ```python
-from polinations import Polinations
+from pollinations import Pollinations
 
 client = Polinations(api_key="optional-key")  # Free without key!
 

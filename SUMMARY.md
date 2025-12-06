@@ -7,7 +7,7 @@ This repository contains a complete Python wrapper for the Polinations AI API, p
 
 ### Core Package Structure
 ```
-polinations/
+pollinations/
 ├── __init__.py         # Package exports and version
 ├── client.py           # Main Polinations client class
 └── exceptions.py       # Custom exception classes
@@ -95,7 +95,7 @@ pip install -e .
 
 ### Basic Usage
 ```python
-from polinations import Polinations
+from pollinations import Pollinations
 
 client = Polinations()
 

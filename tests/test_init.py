@@ -1,7 +1,7 @@
 """Test package initialization."""
 
 import unittest
-from polinations import Polinations, APIError, ModelNotFoundError, __version__
+from pollinations import Pollinations, APIError, ModelNotFoundError, __version__
 
 
 class TestPackage(unittest.TestCase):
@@ -9,7 +9,7 @@ class TestPackage(unittest.TestCase):
     
     def test_imports(self):
         """Test that main classes can be imported."""
-        self.assertIsNotNone(Polinations)
+        self.assertIsNotNone(Pollinations)
         self.assertIsNotNone(APIError)
         self.assertIsNotNone(ModelNotFoundError)
     

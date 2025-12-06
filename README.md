@@ -30,8 +30,8 @@ pip install pollinations-client
 Or install from source:
 
 ```bash
-git clone https://github.com/gpt4free/polinations.git
-cd polinations
+git clone https://github.com/gpt4free/pollinations.git
+cd pollinations
 pip install -e .
 ```
 
@@ -40,7 +40,7 @@ pip install -e .
 ### OpenAI-Compatible API (Recommended)
 
 ```python
-from polinations import Polinations
+from pollinations import Pollinations
 
 # Create a client (no API key required for free tier)
 client = Polinations()
@@ -82,7 +82,7 @@ print(response.data[0]["url"])
 #### Text Generation
 
 ```python
-from polinations import Polinations
+from pollinations import Pollinations
 
 # Create a client
 client = Polinations()
@@ -116,7 +116,7 @@ print(response)
 ### Image Generation
 
 ```python
-from polinations import Polinations
+from pollinations import Pollinations
 
 # Create a client
 client = Polinations()
@@ -295,7 +295,7 @@ When an API key is provided:
 ## Error Handling
 
 ```python
-from polinations import Polinations, APIError, ModelNotFoundError
+from pollinations import Pollinations, APIError, ModelNotFoundError
 
 client = Polinations()
 

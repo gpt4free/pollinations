@@ -1,16 +1,16 @@
 """
-Example script demonstrating image generation with Polinations.
+Example script demonstrating image generation with Pollinations.
 
 This script shows various ways to use the image generation API.
 """
 
 import os
-from polinations import Polinations
+from pollinations import Pollinations
 
 
 def main():
     # Create a client
-    client = Polinations()
+    client = Pollinations()
     
     print("=" * 60)
     print("Image Generation Examples")
@@ -99,7 +99,7 @@ def main():
     print(f"Private image URL: {image_url}")
     
     # Example 8: No logo
-    print("\n8. Image without Polinations logo:")
+    print("\n8. Image without Pollinations logo:")
     print("-" * 60)
     image_url = client.generate_image(
         "A minimalist logo design",
