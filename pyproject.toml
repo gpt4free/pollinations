@@ -36,4 +36,4 @@ Repository = "https://github.com/gpt4free/polinations"
 Issues = "https://github.com/gpt4free/polinations/issues"
 
 [tool.setuptools]
-packages = ["pollinations-client"]
+packages = ["polinations"]
