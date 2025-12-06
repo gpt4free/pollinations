@@ -4,7 +4,7 @@ This document explains the OpenAI-compatible API added to the Pollinations Pytho
 
 ## Overview
 
-The Pollinations client now provides OpenAI-compatible interfaces that allow it to be used as a drop-in replacement for OpenAI's Python client. This means you can use familiar OpenAI API patterns while leveraging Polinations' free AI services.
+The Pollinations client now provides OpenAI-compatible interfaces that allow it to be used as a drop-in replacement for OpenAI's Python client. This means you can use familiar OpenAI API patterns while leveraging Pollinations' free AI services.
 
 ## Quick Start
 
@@ -339,6 +339,6 @@ All 14 OpenAI compatibility tests validate:
 ## Support
 
 For issues or questions:
-- GitHub Issues: https://github.com/gpt4free/polinations/issues
+- GitHub Issues: https://github.com/gpt4free/pollinations/issues
 - Examples: `examples/openai_compatible.py`
 - Tests: `tests/test_openai_compat.py`

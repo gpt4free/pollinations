@@ -333,4 +333,4 @@ This is an unofficial wrapper for Pollinations AI. For official information abou
 
 ## Support
 
-If you encounter any issues or have questions, please [open an issue](https://github.com/gpt4free/polinations/issues) on GitHub.
+If you encounter any issues or have questions, please [open an issue](https://github.com/gpt4free/pollinations/issues) on GitHub.
