@@ -60,10 +60,55 @@ response = client.chat.completions.create(
 - `model`: Model name (optional)
 - `temperature`: Sampling temperature 0-1 (optional)
 - `max_tokens`: Maximum tokens to generate (optional)
+- `stream`: Enable streaming mode (optional, default: False)
 - `seed`: Random seed for reproducibility (optional)
 - `json_mode` or `jsonMode`: Enable JSON output (optional)
 
+### Streaming Support (NEW!)
+
+Streaming allows you to receive the response in real-time as it's being generated.
+
+#### Basic Streaming
+
+```python
+stream = client.chat.completions.create(
+    messages=[{"role": "user", "content": "Write a short story"}],
+    stream=True
+)
+
+for chunk in stream:
+    if chunk.choices[0].delta.content:
+        print(chunk.choices[0].delta.content, end="", flush=True)
+```
+
+#### Advanced Streaming
+
+```python
+stream = client.chat.completions.create(
+    messages=[
+        {"role": "system", "content": "You are a creative writer."},
+        {"role": "user", "content": "Write a poem about AI"}
+    ],
+    model="openai",
+    temperature=0.8,
+    stream=True
+)
+
+full_response = ""
+for chunk in stream:
+    delta = chunk.choices[0].delta.content
+    if delta:
+        full_response += delta
+        print(delta, end="", flush=True)
+    
+    # Check if streaming is complete
+    if chunk.choices[0].finish_reason:
+        print(f"\n\nFinished: {chunk.choices[0].finish_reason}")
+```
+
 ### Response Structure
+
+**Non-streaming (stream=False):**
 
 ```python
 ChatCompletion(
@@ -79,6 +124,30 @@ ChatCompletion(
                 content="Generated response text..."
             ),
             finish_reason="stop"
+        )
+    ],
+    usage=None
+)
+```
+
+**Streaming (stream=True):**
+
+Each chunk is a `ChatCompletionChunk`:
+
+```python
+ChatCompletionChunk(
+    id="chatcmpl-polinations",
+    object="chat.completion.chunk",
+    created=None,
+    model="openai",
+    choices=[
+        ChatCompletionChunkChoice(
+            index=0,
+            delta=ChatCompletionChunkDelta(
+                content="text chunk...",
+                role="assistant"  # Only in first chunk
+            ),
+            finish_reason=None  # "stop" in final chunk
         )
     ],
     usage=None
@@ -191,6 +260,16 @@ response = client.chat.completions.create(
     messages=[{"role": "user", "content": "Hello"}]
 )
 
+# Streaming - same interface!
+stream = client.chat.completions.create(
+    model="openai",
+    messages=[{"role": "user", "content": "Hello"}],
+    stream=True
+)
+for chunk in stream:
+    if chunk.choices[0].delta.content:
+        print(chunk.choices[0].delta.content, end="")
+
 # Images - same interface!
 response = client.images.generate(
     prompt="A sunset",
@@ -201,8 +280,8 @@ response = client.images.generate(
 ## Limitations
 
 ### Chat Completions
-- ❌ Streaming (`stream=True`) not supported
-- ✅ All other standard parameters supported
+- ✅ Streaming (`stream=True`) fully supported
+- ✅ All standard parameters supported
 
 ### Image Generation
 - ❌ Only `n=1` supported (single image at a time)

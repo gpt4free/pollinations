@@ -11,6 +11,7 @@ Polinations provides free, unlimited access to various AI models for text and im
 
 - 🎨 **Image Generation**: Create images from text descriptions
 - 💬 **Text Generation**: Generate text using various language models
+- 🌊 **Streaming Support**: Stream text responses in real-time (NEW!)
 - 🔄 **No API Key Required**: Completely free to use (API key optional for advanced features)
 - 🚀 **Simple API**: Easy-to-use interface with both native and OpenAI-compatible APIs
 - 🎯 **Multiple Models**: Access to various AI models
@@ -55,6 +56,15 @@ response = client.chat.completions.create(
 )
 print(response.choices[0].message.content)
 
+# Streaming chat completion (NEW!)
+stream = client.chat.completions.create(
+    messages=[{"role": "user", "content": "Write a short story"}],
+    stream=True
+)
+for chunk in stream:
+    if chunk.choices[0].delta.content:
+        print(chunk.choices[0].delta.content, end="", flush=True)
+
 # Image generation (OpenAI-compatible)
 response = client.images.generate(
     prompt="A serene mountain landscape at sunset",
@@ -77,6 +87,12 @@ client = Polinations()
 # Generate text
 response = client.generate_text("What is the meaning of life?")
 print(response)
+
+# Streaming text generation (NEW!)
+stream = client.generate_text_stream("Tell me a story")
+for chunk in stream:
+    if chunk.choices[0].delta.content:
+        print(chunk.choices[0].delta.content, end="", flush=True)
 
 # Use a specific model
 response = client.generate_text(
@@ -139,7 +155,7 @@ Create a new Polinations client.
 
 The client provides OpenAI-compatible interfaces that can be used as drop-in replacements for OpenAI's API.
 
-#### `client.chat.completions.create(messages, model=None, temperature=None, max_tokens=None, **kwargs)`
+#### `client.chat.completions.create(messages, model=None, temperature=None, max_tokens=None, stream=False, **kwargs)`
 
 Create a chat completion (OpenAI-compatible).
 
@@ -148,9 +164,11 @@ Create a chat completion (OpenAI-compatible).
 - `model` (str, optional): Model name to use
 - `temperature` (float, optional): Sampling temperature 0-1
 - `max_tokens` (int, optional): Maximum tokens to generate
-- `stream` (bool): Must be False (streaming not supported)
+- `stream` (bool): Enable streaming mode (default: False)
 
-**Returns:** ChatCompletion object with `choices[0].message.content`
+**Returns:** 
+- ChatCompletion object with `choices[0].message.content` (if stream=False)
+- Iterator of ChatCompletionChunk objects (if stream=True)
 
 #### `client.images.generate(prompt, model=None, size=None, n=1, **kwargs)`
 
@@ -181,6 +199,29 @@ Generate text using a language model.
 - `jsonMode` (bool): If True, output will be formatted as JSON
 
 **Returns:** Generated text (str)
+
+#### `generate_text_stream(prompt, model=None, system=None, temperature=None, max_tokens=None, seed=None, jsonMode=False)`
+
+Generate text using a language model with streaming support.
+
+**Parameters:**
+- `prompt` (str): Input text prompt
+- `model` (str, optional): Model name to use
+- `system` (str, optional): System message to set context
+- `temperature` (float, optional): Sampling temperature 0-1 (higher = more creative)
+- `max_tokens` (int, optional): Maximum tokens to generate
+- `seed` (int, optional): Random seed for reproducibility
+- `jsonMode` (bool): If True, output will be formatted as JSON
+
+**Returns:** Iterator of ChatCompletionChunk objects with delta content
+
+**Example:**
+```python
+stream = client.generate_text_stream("Tell me a story")
+for chunk in stream:
+    if chunk.choices[0].delta.content:
+        print(chunk.choices[0].delta.content, end="", flush=True)
+```
 
 #### `generate_image(prompt, model=None, width=None, height=None, seed=None, nologo=False, private=False, enhance=False)`
 
@@ -225,7 +266,8 @@ Get list of available text generation models.
 
 See the [examples](examples/) directory for more usage examples:
 
-- [OpenAI-Compatible API](examples/openai_compatible.py) - **NEW!** OpenAI-compatible interface examples
+- [OpenAI-Compatible API](examples/openai_compatible.py) - OpenAI-compatible interface examples
+- [Streaming Examples](examples/streaming.py) - **NEW!** Real-time streaming text generation
 - [Text Generation Examples](examples/text_generation.py)
 - [Image Generation Examples](examples/image_generation.py)
 - [List Models](examples/list_models.py)
