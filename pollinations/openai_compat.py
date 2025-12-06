@@ -253,9 +253,13 @@ class ChatCompletions:
             except UnicodeDecodeError:
                 continue
             
-            # SSE format: "data: {json}"
+            # SSE format: "data: {json}" or "data: [DONE]"
             if line_str.startswith('data: '):
                 json_str = line_str[6:]
+                
+                # Check for termination signal
+                if json_str.strip() == '[DONE]':
+                    break
                 
                 try:
                     data = json.loads(json_str)
