@@ -196,7 +196,7 @@ class Pollinations:
                 raise ModelNotFoundError(f"Model '{model}' not found. Available models: {', '.join(available_models)}")
         
         encoded_prompt = urllib.parse.quote(prompt)
-        # gen.pollinations.ai uses /image/{prompt}, image.pollinations.ai uses /prompt/{prompt}
+        # gen.pollinations.ai uses /{prompt}, image.pollinations.ai uses /prompt/{prompt}
         if self.api_key:
             url = f"{self.IMAGE_BASE_URL}/{encoded_prompt}"
         else:
@@ -264,6 +264,9 @@ class Pollinations:
     ) -> str:
         """
         Generate and download an image to a local file.
+        
+        Note: Video-specific parameters (duration, aspectRatio, audio) are not supported
+        for downloads as they generate video files which should be accessed via URLs.
         
         Args:
             prompt: Text description of the image to generate

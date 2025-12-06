@@ -256,10 +256,12 @@ Generate an image or video from a text prompt.
 
 Generate and download an image to a local file.
 
+**Note:** Video-specific parameters (duration, aspectRatio, audio) are not supported for downloads as they generate video files which should be accessed via URLs.
+
 **Parameters:**
 - `prompt` (str): Text description of the image to generate
 - `output_path` (str): Local path where the image will be saved
-- `**kwargs`: Same parameters as `generate_image()` (except video-specific parameters like duration, aspectRatio, audio)
+- `**kwargs`: Same image parameters as `generate_image()` (excluding video-specific parameters)
 
 **Returns:** Path to the saved image file (str)
 
