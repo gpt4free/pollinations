@@ -49,6 +49,10 @@ class Pollinations:
     # Alternative API endpoints that support API keys
     GEN_IMAGE_URL = "https://gen.pollinations.ai/image"
     GEN_TEXT_URL = "https://gen.pollinations.ai/text"
+    GEN_CHAT_URL = "https://gen.pollinations.ai/v1/chat/completions"
+    
+    # OpenAI-compatible endpoint for public API
+    TEXT_OPENAI_URL = "https://text.pollinations.ai/openai"
     
     def __init__(self, timeout: int = 30, api_key: Optional[str] = None):
         """
@@ -73,6 +77,10 @@ class Pollinations:
             # Use gen.pollinations.ai when API key is provided
             self.IMAGE_BASE_URL = self.GEN_IMAGE_URL
             self.TEXT_BASE_URL = self.GEN_TEXT_URL
+            self.CHAT_URL = self.GEN_CHAT_URL
+        else:
+            # Use public API endpoints
+            self.CHAT_URL = self.TEXT_OPENAI_URL
     
     def _get_status_code(self, exception):
         """Extract status code from requests exception if available."""

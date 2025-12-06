@@ -2,6 +2,7 @@
 
 from typing import Optional, List, Dict, Any, Union, Iterator
 import json
+import requests
 
 
 class ImageResponse:
@@ -35,13 +36,38 @@ class ChatCompletionChoice:
 class ChatCompletion:
     """OpenAI-compatible chat completion response."""
     
-    def __init__(self, content: str, model: Optional[str] = None):
-        self.id = "chatcmpl-pollinations"
-        self.object = "chat.completion"
-        self.created = None
-        self.model = model or "default"
-        self.choices = [ChatCompletionChoice(ChatCompletionMessage("assistant", content))]
-        self.usage = None
+    def __init__(self, content: str = None, model: Optional[str] = None, response_dict: Optional[Dict] = None):
+        if response_dict:
+            # Parse from API response
+            self.id = response_dict.get("id", "chatcmpl-pollinations")
+            self.object = response_dict.get("object", "chat.completion")
+            self.created = response_dict.get("created")
+            self.model = response_dict.get("model", model or "default")
+            self.usage = response_dict.get("usage")
+            
+            # Parse choices
+            choices_data = response_dict.get("choices", [])
+            self.choices = []
+            for choice_data in choices_data:
+                message_data = choice_data.get("message", {})
+                message = ChatCompletionMessage(
+                    role=message_data.get("role", "assistant"),
+                    content=message_data.get("content", "")
+                )
+                choice = ChatCompletionChoice(
+                    message=message,
+                    finish_reason=choice_data.get("finish_reason", "stop"),
+                    index=choice_data.get("index", 0)
+                )
+                self.choices.append(choice)
+        else:
+            # Legacy: construct from plain text
+            self.id = "chatcmpl-pollinations"
+            self.object = "chat.completion"
+            self.created = None
+            self.model = model or "default"
+            self.choices = [ChatCompletionChoice(ChatCompletionMessage("assistant", content))]
+            self.usage = None
 
 
 class ChatCompletionChunkDelta:
@@ -160,49 +186,113 @@ class ChatCompletions:
             ChatCompletion with generated response (if stream=False)
             Iterator of ChatCompletionChunk (if stream=True)
         """
-        # Extract system message and user prompt
-        system = None
-        prompt = None
+        from .exceptions import APIError
         
-        for msg in messages:
-            if msg["role"] == "system":
-                system = msg["content"]
-            elif msg["role"] == "user":
-                prompt = msg["content"]
+        # Build request payload
+        payload = {
+            "messages": messages
+        }
         
-        if not prompt:
-            raise ValueError("At least one user message is required")
-        
-        # Extract seed and jsonMode from kwargs if present
-        seed = kwargs.pop("seed", None)
-        jsonMode = kwargs.pop("json_mode", False) or kwargs.pop("jsonMode", False)
-        
+        if model:
+            payload["model"] = model
+        if temperature is not None:
+            payload["temperature"] = temperature
+        if max_tokens is not None:
+            payload["max_tokens"] = max_tokens
         if stream:
-            # Return streaming iterator
-            return self._client.generate_text_stream(
-                prompt=prompt,
-                model=model,
-                system=system,
-                temperature=temperature,
-                max_tokens=max_tokens,
-                seed=seed,
-                jsonMode=jsonMode,
-                **kwargs
-            )
-        else:
-            # Return complete response
-            response = self._client.generate_text(
-                prompt=prompt,
-                model=model,
-                system=system,
-                temperature=temperature,
-                max_tokens=max_tokens,
-                seed=seed,
-                jsonMode=jsonMode,
-                **kwargs
-            )
+            payload["stream"] = True
             
-            return ChatCompletion(response, model=model)
+        # Add any additional kwargs
+        payload.update(kwargs)
+        
+        url = self._client.CHAT_URL
+        headers = self._client._get_headers()
+        headers["Content-Type"] = "application/json"
+        
+        try:
+            if stream:
+                # Streaming response
+                response = requests.post(
+                    url,
+                    json=payload,
+                    headers=headers,
+                    timeout=self._client.timeout,
+                    stream=True
+                )
+                response.raise_for_status()
+                
+                return self._parse_stream(response, model)
+            else:
+                # Non-streaming response
+                response = requests.post(
+                    url,
+                    json=payload,
+                    headers=headers,
+                    timeout=self._client.timeout
+                )
+                response.raise_for_status()
+                
+                response_data = response.json()
+                return ChatCompletion(response_dict=response_data, model=model)
+                
+        except requests.RequestException as e:
+            status_code = getattr(e.response, 'status_code', None) if hasattr(e, 'response') else None
+            raise APIError(f"Failed to create chat completion: {str(e)}", status_code)
+    
+    def _parse_stream(self, response, model: Optional[str] = None) -> Iterator[ChatCompletionChunk]:
+        """Parse streaming response into ChatCompletionChunk objects."""
+        chunk_id = None
+        first_chunk = True
+        
+        for line in response.iter_lines():
+            if not line:
+                continue
+            
+            try:
+                line_str = line.decode('utf-8')
+            except UnicodeDecodeError:
+                continue
+            
+            # SSE format: "data: {json}"
+            if line_str.startswith('data: '):
+                json_str = line_str[6:]
+                
+                try:
+                    data = json.loads(json_str)
+                except json.JSONDecodeError:
+                    continue
+                
+                # Extract chunk ID if available
+                if 'id' in data:
+                    chunk_id = data['id']
+                
+                # Extract model if available
+                chunk_model = data.get('model', model)
+                
+                # Extract delta and finish_reason
+                if 'choices' in data and len(data['choices']) > 0:
+                    choice = data['choices'][0]
+                    delta = choice.get('delta', {})
+                    finish_reason = choice.get('finish_reason')
+                    
+                    # Create delta object
+                    content = delta.get('content')
+                    role = delta.get('role')
+                    
+                    # On first chunk with role, include it
+                    if first_chunk and role:
+                        chunk_delta = ChatCompletionChunkDelta(content=content, role=role)
+                        first_chunk = False
+                    else:
+                        chunk_delta = ChatCompletionChunkDelta(content=content)
+                    
+                    # Yield chunk
+                    yield ChatCompletionChunk(
+                        delta=chunk_delta,
+                        model=chunk_model,
+                        finish_reason=finish_reason,
+                        chunk_id=chunk_id
+                    )
 
 
 class Chat:
