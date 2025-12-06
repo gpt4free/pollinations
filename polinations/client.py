@@ -376,7 +376,11 @@ class Polinations:
                 if not line:
                     continue
                 
-                line_str = line.decode('utf-8')
+                try:
+                    line_str = line.decode('utf-8')
+                except UnicodeDecodeError as e:
+                    # Log or skip invalid UTF-8 data
+                    continue
                 
                 # SSE format: "data: {json}"
                 if line_str.startswith('data: '):
@@ -384,41 +388,41 @@ class Polinations:
                     
                     try:
                         data = json.loads(json_str)
-                        
-                        # Extract chunk ID if available
-                        if 'id' in data:
-                            chunk_id = data['id']
-                        
-                        # Extract model if available
-                        chunk_model = data.get('model', model)
-                        
-                        # Extract delta and finish_reason
-                        if 'choices' in data and len(data['choices']) > 0:
-                            choice = data['choices'][0]
-                            delta = choice.get('delta', {})
-                            finish_reason = choice.get('finish_reason')
-                            
-                            # Create delta object
-                            content = delta.get('content')
-                            role = delta.get('role')
-                            
-                            # On first chunk with role, include it
-                            if first_chunk and role:
-                                chunk_delta = ChatCompletionChunkDelta(content=content, role=role)
-                                first_chunk = False
-                            else:
-                                chunk_delta = ChatCompletionChunkDelta(content=content)
-                            
-                            # Yield chunk
-                            yield ChatCompletionChunk(
-                                delta=chunk_delta,
-                                model=chunk_model,
-                                finish_reason=finish_reason,
-                                chunk_id=chunk_id
-                            )
                     except json.JSONDecodeError:
-                        # Skip malformed JSON
+                        # Skip malformed JSON chunks - this can happen with streaming
                         continue
+                    
+                    # Extract chunk ID if available
+                    if 'id' in data:
+                        chunk_id = data['id']
+                    
+                    # Extract model if available
+                    chunk_model = data.get('model', model)
+                    
+                    # Extract delta and finish_reason
+                    if 'choices' in data and len(data['choices']) > 0:
+                        choice = data['choices'][0]
+                        delta = choice.get('delta', {})
+                        finish_reason = choice.get('finish_reason')
+                        
+                        # Create delta object
+                        content = delta.get('content')
+                        role = delta.get('role')
+                        
+                        # On first chunk with role, include it
+                        if first_chunk and role:
+                            chunk_delta = ChatCompletionChunkDelta(content=content, role=role)
+                            first_chunk = False
+                        else:
+                            chunk_delta = ChatCompletionChunkDelta(content=content)
+                        
+                        # Yield chunk
+                        yield ChatCompletionChunk(
+                            delta=chunk_delta,
+                            model=chunk_model,
+                            finish_reason=finish_reason,
+                            chunk_id=chunk_id
+                        )
                         
         except requests.RequestException as e:
             raise APIError(f"Failed to generate text stream: {str(e)}", self._get_status_code(e))

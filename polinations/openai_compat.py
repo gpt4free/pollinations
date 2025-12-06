@@ -50,14 +50,6 @@ class ChatCompletionChunkDelta:
     def __init__(self, content: Optional[str] = None, role: Optional[str] = None):
         self.content = content
         self.role = role
-    
-    def to_dict(self):
-        result = {}
-        if self.content is not None:
-            result["content"] = self.content
-        if self.role is not None:
-            result["role"] = self.role
-        return result
 
 
 class ChatCompletionChunkChoice:

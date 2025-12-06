@@ -138,17 +138,36 @@ class TestOpenAICompatibility(unittest.TestCase):
     @patch('polinations.client.requests.post')
     def test_chat_completions_stream_supported(self, mock_post):
         """Test that streaming is now supported."""
+        import json
+        
         # Create a mock streaming response
         mock_response = Mock()
         mock_response.ok = True
         mock_response.status_code = 200
         
         # Mock streaming data in SSE format
+        def create_chunk(delta_content=None, role=None, finish_reason=None):
+            chunk = {
+                "choices": [{
+                    "delta": {},
+                    "finish_reason": finish_reason,
+                    "index": 0
+                }],
+                "id": "test-id",
+                "model": "openai",
+                "object": "chat.completion.chunk"
+            }
+            if delta_content is not None:
+                chunk["choices"][0]["delta"]["content"] = delta_content
+            if role is not None:
+                chunk["choices"][0]["delta"]["role"] = role
+            return f'data: {json.dumps(chunk)}'.encode('utf-8')
+        
         stream_data = [
-            b'data: {"choices":[{"delta":{"role":"assistant","content":""},"finish_reason":null,"index":0}],"id":"test-id","model":"openai","object":"chat.completion.chunk"}',
-            b'data: {"choices":[{"delta":{"content":"Hello"},"finish_reason":null,"index":0}],"id":"test-id","model":"openai","object":"chat.completion.chunk"}',
-            b'data: {"choices":[{"delta":{"content":"!"},"finish_reason":null,"index":0}],"id":"test-id","model":"openai","object":"chat.completion.chunk"}',
-            b'data: {"choices":[{"delta":{},"finish_reason":"stop","index":0}],"id":"test-id","model":"openai","object":"chat.completion.chunk"}',
+            create_chunk(delta_content="", role="assistant"),
+            create_chunk(delta_content="Hello"),
+            create_chunk(delta_content="!"),
+            create_chunk(finish_reason="stop"),
         ]
         
         mock_response.iter_lines.return_value = stream_data
@@ -183,16 +202,34 @@ class TestOpenAICompatibility(unittest.TestCase):
     @patch('polinations.client.requests.post')
     def test_generate_text_stream_success(self, mock_post):
         """Test successful text streaming with native API."""
+        import json
+        
         mock_response = Mock()
         mock_response.ok = True
         mock_response.status_code = 200
         
+        # Helper to create chunks
+        def create_chunk(content=None, role=None, finish_reason=None):
+            chunk = {
+                "choices": [{
+                    "delta": {},
+                    "finish_reason": finish_reason
+                }],
+                "id": "test",
+                "model": "openai"
+            }
+            if content is not None:
+                chunk["choices"][0]["delta"]["content"] = content
+            if role is not None:
+                chunk["choices"][0]["delta"]["role"] = role
+            return f'data: {json.dumps(chunk)}'.encode('utf-8')
+        
         # Mock streaming data
         stream_data = [
-            b'data: {"choices":[{"delta":{"role":"assistant","content":""},"finish_reason":null}],"id":"test","model":"openai"}',
-            b'data: {"choices":[{"delta":{"content":"Test"},"finish_reason":null}],"id":"test","model":"openai"}',
-            b'data: {"choices":[{"delta":{"content":" response"},"finish_reason":null}],"id":"test","model":"openai"}',
-            b'data: {"choices":[{"delta":{},"finish_reason":"stop"}],"id":"test","model":"openai"}',
+            create_chunk(content="", role="assistant"),
+            create_chunk(content="Test"),
+            create_chunk(content=" response"),
+            create_chunk(finish_reason="stop"),
         ]
         
         mock_response.iter_lines.return_value = stream_data
@@ -213,13 +250,15 @@ class TestOpenAICompatibility(unittest.TestCase):
     @patch('polinations.client.requests.post')
     def test_streaming_with_finish_reason(self, mock_post):
         """Test that finish_reason is properly set in streaming."""
+        import json
+        
         mock_response = Mock()
         mock_response.ok = True
         mock_response.status_code = 200
         
         stream_data = [
-            b'data: {"choices":[{"delta":{"content":"Hello"},"finish_reason":null}]}',
-            b'data: {"choices":[{"delta":{},"finish_reason":"stop"}]}',
+            f'data: {json.dumps({"choices":[{"delta":{"content":"Hello"},"finish_reason":None}]})}'.encode('utf-8'),
+            f'data: {json.dumps({"choices":[{"delta":{},"finish_reason":"stop"}]})}'.encode('utf-8'),
         ]
         
         mock_response.iter_lines.return_value = stream_data
