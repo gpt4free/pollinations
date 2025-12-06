@@ -2,6 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.7+](https://img.shields.io/badge/python-3.7+-blue.svg)](https://www.python.org/downloads/)
+[![PyPI version](https://badge.fury.io/py/polinations.svg)](https://badge.fury.io/py/polinations)
 
 A Python wrapper for [Polinations AI](https://pollinations.ai/) - Free text and image generation APIs.
 
@@ -20,8 +21,10 @@ Polinations provides free, unlimited access to various AI models for text and im
 
 ## Installation
 
+Install from PyPI:
+
 ```bash
-pip install -r requirements.txt
+pip install polinations
 ```
 
 Or install from source:
