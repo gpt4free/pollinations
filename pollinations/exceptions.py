@@ -1,12 +1,12 @@
-"""Custom exceptions for Polinations API."""
+"""Custom exceptions for Pollinations API."""
 
 
-class PolinationsError(Exception):
-    """Base exception for all Polinations errors."""
+class PollinationsError(Exception):
+    """Base exception for all Pollinations errors."""
     pass
 
 
-class APIError(PolinationsError):
+class APIError(PollinationsError):
     """Raised when the API returns an error."""
     
     def __init__(self, message, status_code=None):
@@ -14,6 +14,6 @@ class APIError(PolinationsError):
         super().__init__(message)
 
 
-class ModelNotFoundError(PolinationsError):
+class ModelNotFoundError(PollinationsError):
     """Raised when a requested model is not found."""
     pass

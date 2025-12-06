@@ -1,20 +1,20 @@
 # OpenAI Compatibility Guide
 
-This document explains the OpenAI-compatible API added to the Polinations Python client.
+This document explains the OpenAI-compatible API added to the Pollinations Python client.
 
 ## Overview
 
-The Polinations client now provides OpenAI-compatible interfaces that allow it to be used as a drop-in replacement for OpenAI's Python client. This means you can use familiar OpenAI API patterns while leveraging Polinations' free AI services.
+The Pollinations client now provides OpenAI-compatible interfaces that allow it to be used as a drop-in replacement for OpenAI's Python client. This means you can use familiar OpenAI API patterns while leveraging Pollinations' free AI services.
 
 ## Quick Start
 
 ```python
-from polinations import Polinations
+from pollinations import Pollinations
 
 # Initialize client (with or without API key)
-client = Polinations()  # Free tier
+client = Pollinations()  # Free tier
 # or
-client = Polinations(api_key="your-key")  # Authenticated
+client = Pollinations(api_key="your-key")  # Authenticated
 
 # Use OpenAI-compatible interfaces
 response = client.chat.completions.create(
@@ -112,7 +112,7 @@ for chunk in stream:
 
 ```python
 ChatCompletion(
-    id="chatcmpl-polinations",
+    id="chatcmpl-pollinations",
     object="chat.completion",
     created=None,
     model="openai",
@@ -136,7 +136,7 @@ Each chunk is a `ChatCompletionChunk`:
 
 ```python
 ChatCompletionChunk(
-    id="chatcmpl-polinations",
+    id="chatcmpl-pollinations",
     object="chat.completion.chunk",
     created=None,
     model="openai",
@@ -208,14 +208,14 @@ ImageResponse(
 ### Without API Key (Free Tier)
 
 ```python
-client = Polinations()
+client = Pollinations()
 # Uses: image.pollinations.ai and text.pollinations.ai
 ```
 
 ### With API Key (Authenticated)
 
 ```python
-client = Polinations(api_key="your-api-key-here")
+client = Pollinations(api_key="your-api-key-here")
 # Uses: gen.pollinations.ai endpoints
 # API key sent as: Authorization: Bearer your-api-key-here
 ```
@@ -247,12 +247,12 @@ response = client.images.generate(
 )
 ```
 
-### After (Polinations)
+### After (Pollinations)
 
 ```python
-from polinations import Polinations
+from pollinations import Pollinations
 
-client = Polinations(api_key="optional-key")  # Free without key!
+client = Pollinations(api_key="optional-key")  # Free without key!
 
 # Chat - same interface!
 response = client.chat.completions.create(
@@ -291,7 +291,7 @@ response = client.images.generate(
 
 ## Comparison: Native vs OpenAI-Compatible API
 
-Both APIs access the same underlying Polinations services:
+Both APIs access the same underlying Pollinations services:
 
 ```python
 # Native API
@@ -339,6 +339,6 @@ All 14 OpenAI compatibility tests validate:
 ## Support
 
 For issues or questions:
-- GitHub Issues: https://github.com/gpt4free/polinations/issues
+- GitHub Issues: https://github.com/gpt4free/pollinations/issues
 - Examples: `examples/openai_compatible.py`
 - Tests: `tests/test_openai_compat.py`

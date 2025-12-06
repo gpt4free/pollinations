@@ -1,15 +1,15 @@
 """
-Example script demonstrating text generation with Polinations.
+Example script demonstrating text generation with Pollinations.
 
 This script shows various ways to use the text generation API.
 """
 
-from polinations import Polinations
+from pollinations import Pollinations
 
 
 def main():
     # Create a client
-    client = Polinations()
+    client = Pollinations()
     
     print("=" * 60)
     print("Text Generation Examples")

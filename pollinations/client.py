@@ -1,4 +1,4 @@
-"""Main client for Polinations AI API."""
+"""Main client for Pollinations AI API."""
 
 import urllib.parse
 from typing import Optional, List, Dict, Any, Iterator
@@ -9,15 +9,15 @@ from .exceptions import APIError, ModelNotFoundError
 from .openai_compat import Images, Chat, ChatCompletionChunk, ChatCompletionChunkDelta
 
 
-class Polinations:
+class Pollinations:
     """
-    Client for interacting with Polinations AI APIs.
+    Client for interacting with Pollinations AI APIs.
     
-    Polinations provides free APIs for text generation (chat) and image generation.
+    Pollinations provides free APIs for text generation (chat) and image generation.
     Supports both native API and OpenAI-compatible interfaces.
     
     Example (Native API):
-        >>> client = Polinations()
+        >>> client = Pollinations()
         >>> # Generate text
         >>> response = client.generate_text("Hello, how are you?")
         >>> print(response)
@@ -27,7 +27,7 @@ class Polinations:
         >>> print(image_url)
     
     Example (OpenAI-compatible API):
-        >>> client = Polinations(api_key="your-api-key")
+        >>> client = Pollinations(api_key="your-api-key")
         >>> # Chat completion
         >>> response = client.chat.completions.create(
         ...     model="openai",
@@ -52,7 +52,7 @@ class Polinations:
     
     def __init__(self, timeout: int = 30, api_key: Optional[str] = None):
         """
-        Initialize the Polinations client.
+        Initialize the Pollinations client.
         
         Args:
             timeout: Request timeout in seconds (default: 30)
@@ -158,7 +158,7 @@ class Polinations:
             width: Image width in pixels (optional)
             height: Image height in pixels (optional)
             seed: Random seed for reproducibility (optional)
-            nologo: If True, removes Polinations logo from image (optional)
+            nologo: If True, removes Pollinations logo from image (optional)
             private: If True, image won't be published to feed (optional)
             enhance: If True, automatically enhances the prompt (optional)
             validate_model: If True, validates model exists before generating (optional)
@@ -221,7 +221,7 @@ class Polinations:
             width: Image width in pixels (optional)
             height: Image height in pixels (optional)
             seed: Random seed for reproducibility (optional)
-            nologo: If True, removes Polinations logo from image (optional)
+            nologo: If True, removes Pollinations logo from image (optional)
             private: If True, image won't be published to feed (optional)
             enhance: If True, automatically enhances the prompt (optional)
             

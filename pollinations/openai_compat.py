@@ -1,4 +1,4 @@
-"""OpenAI-compatible API interfaces for Polinations."""
+"""OpenAI-compatible API interfaces for Pollinations."""
 
 from typing import Optional, List, Dict, Any, Union, Iterator
 import json
@@ -36,7 +36,7 @@ class ChatCompletion:
     """OpenAI-compatible chat completion response."""
     
     def __init__(self, content: str, model: Optional[str] = None):
-        self.id = "chatcmpl-polinations"
+        self.id = "chatcmpl-pollinations"
         self.object = "chat.completion"
         self.created = None
         self.model = model or "default"
@@ -66,7 +66,7 @@ class ChatCompletionChunk:
     
     def __init__(self, delta: ChatCompletionChunkDelta, model: Optional[str] = None, 
                  finish_reason: Optional[str] = None, chunk_id: Optional[str] = None):
-        self.id = chunk_id or "chatcmpl-polinations"
+        self.id = chunk_id or "chatcmpl-pollinations"
         self.object = "chat.completion.chunk"
         self.created = None
         self.model = model or "default"

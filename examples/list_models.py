@@ -1,20 +1,20 @@
 """
-Example script to list available models from Polinations.
+Example script to list available models from Pollinations.
 
 This script demonstrates how to retrieve the list of available models
 for both text and image generation.
 """
 
-from polinations import Polinations
+from pollinations import Pollinations
 import json
 
 
 def main():
     # Create a client
-    client = Polinations()
+    client = Pollinations()
     
     print("=" * 60)
-    print("Polinations Available Models")
+    print("Pollinations Available Models")
     print("=" * 60)
     
     # Get image models

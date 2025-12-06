@@ -1,6 +1,6 @@
 # Publishing to PyPI
 
-This document describes how to publish new versions of the `polinations` package to PyPI.
+This document describes how to publish new versions of the `pollinations` package to PyPI.
 
 ## Automated Publishing (Recommended)
 
@@ -8,7 +8,7 @@ The repository is configured with GitHub Actions to automatically publish to PyP
 
 ### Publishing a New Release
 
-1. Update the version number in `pyproject.toml` and `polinations/__init__.py`
+1. Update the version number in `pyproject.toml` and `pollinations/__init__.py`
 2. Commit and push your changes
 3. Create a new release on GitHub:
    - Go to the repository's "Releases" page
@@ -103,7 +103,7 @@ To enable automated publishing, the repository owner needs to:
 2. Add a new "pending publisher":
    - PyPI Project Name: `pollinations-client`
    - Owner: `gpt4free`
-   - Repository name: `polinations`
+   - Repository name: `pollinations`
    - Workflow name: `publish-to-pypi.yml`
    - Environment name: `pypi`
 
@@ -119,6 +119,6 @@ Version numbers should follow [Semantic Versioning](https://semver.org/):
 
 Update the version in both locations (keep them in sync):
 1. `pyproject.toml` (line with `version = "X.Y.Z"`)
-2. `polinations/__init__.py` (line with `__version__ = "X.Y.Z"`)
+2. `pollinations/__init__.py` (line with `__version__ = "X.Y.Z"`)
 
 **Note**: Future improvement could use dynamic versioning with `setuptools_scm` or read version from `__init__.py` to maintain a single source of truth.

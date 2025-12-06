@@ -5,7 +5,7 @@ This script shows how to use streaming with both the OpenAI-compatible
 API and the native API.
 """
 
-from polinations import Polinations
+from pollinations import Pollinations
 
 
 def main():
@@ -14,7 +14,7 @@ def main():
     print("=" * 70)
     
     # Initialize client
-    client = Polinations()
+    client = Pollinations()
     
     # ========================================================================
     # OpenAI-Compatible Streaming API

@@ -1,15 +1,15 @@
-# Polinations Python Package - Implementation Summary
+# Pollinations Python Package - Implementation Summary
 
 ## Overview
-This repository contains a complete Python wrapper for the Polinations AI API, providing free access to text and image generation services without requiring API keys.
+This repository contains a complete Python wrapper for the Pollinations AI API, providing free access to text and image generation services without requiring API keys.
 
 ## What Was Created
 
 ### Core Package Structure
 ```
-polinations/
+pollinations/
 ├── __init__.py         # Package exports and version
-├── client.py           # Main Polinations client class
+├── client.py           # Main Pollinations client class
 └── exceptions.py       # Custom exception classes
 ```
 
@@ -95,9 +95,9 @@ pip install -e .
 
 ### Basic Usage
 ```python
-from polinations import Polinations
+from pollinations import Pollinations
 
-client = Polinations()
+client = Pollinations()
 
 # Generate text
 response = client.generate_text("What is AI?")

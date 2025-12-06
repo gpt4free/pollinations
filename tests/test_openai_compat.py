@@ -2,7 +2,7 @@
 
 import unittest
 from unittest.mock import patch, Mock
-from polinations import Polinations
+from pollinations import Pollinations
 
 
 class TestOpenAICompatibility(unittest.TestCase):
@@ -10,7 +10,7 @@ class TestOpenAICompatibility(unittest.TestCase):
     
     def setUp(self):
         """Set up test client."""
-        self.client = Polinations(timeout=30)
+        self.client = Pollinations(timeout=30)
     
     def test_client_has_openai_interfaces(self):
         """Test that client has OpenAI-compatible interfaces."""
@@ -20,7 +20,7 @@ class TestOpenAICompatibility(unittest.TestCase):
     
     def test_api_key_initialization(self):
         """Test client initialization with API key."""
-        client = Polinations(api_key="test-key-123")
+        client = Pollinations(api_key="test-key-123")
         self.assertEqual(client.api_key, "test-key-123")
         # Should use gen.pollinations.ai when API key is provided
         self.assertIn("gen.pollinations.ai", client.IMAGE_BASE_URL)
@@ -28,7 +28,7 @@ class TestOpenAICompatibility(unittest.TestCase):
     
     def test_headers_with_api_key(self):
         """Test that headers include API key when provided."""
-        client = Polinations(api_key="test-key-123")
+        client = Pollinations(api_key="test-key-123")
         headers = client._get_headers()
         self.assertIn("Authorization", headers)
         self.assertEqual(headers["Authorization"], "Bearer test-key-123")
@@ -79,7 +79,7 @@ class TestOpenAICompatibility(unittest.TestCase):
             self.client.images.generate(prompt="Test", response_format="b64_json")
         self.assertIn("Only response_format='url' is supported", str(context.exception))
     
-    @patch('polinations.client.requests.post')
+    @patch('pollinations.client.requests.post')
     def test_chat_completions_create_simple(self, mock_post):
         """Test simple chat completion."""
         mock_response = Mock()
@@ -97,7 +97,7 @@ class TestOpenAICompatibility(unittest.TestCase):
         self.assertEqual(response.choices[0].message.content, "Hello! How can I help you?")
         self.assertEqual(response.choices[0].finish_reason, "stop")
     
-    @patch('polinations.client.requests.post')
+    @patch('pollinations.client.requests.post')
     def test_chat_completions_create_with_system(self, mock_post):
         """Test chat completion with system message."""
         mock_response = Mock()
@@ -117,7 +117,7 @@ class TestOpenAICompatibility(unittest.TestCase):
         # System message should have been passed
         self.assertTrue(mock_post.called)
     
-    @patch('polinations.client.requests.post')
+    @patch('pollinations.client.requests.post')
     def test_chat_completions_create_with_params(self, mock_post):
         """Test chat completion with parameters."""
         mock_response = Mock()
@@ -135,7 +135,7 @@ class TestOpenAICompatibility(unittest.TestCase):
         self.assertEqual(response.model, "openai")
         self.assertTrue(mock_post.called)
     
-    @patch('polinations.client.requests.post')
+    @patch('pollinations.client.requests.post')
     def test_chat_completions_stream_supported(self, mock_post):
         """Test that streaming is now supported."""
         import json
@@ -199,7 +199,7 @@ class TestOpenAICompatibility(unittest.TestCase):
             )
         self.assertIn("At least one user message is required", str(context.exception))
     
-    @patch('polinations.client.requests.post')
+    @patch('pollinations.client.requests.post')
     def test_generate_text_stream_success(self, mock_post):
         """Test successful text streaming with native API."""
         import json
@@ -247,7 +247,7 @@ class TestOpenAICompatibility(unittest.TestCase):
         self.assertIn("Test", content_chunks)
         self.assertIn(" response", content_chunks)
     
-    @patch('polinations.client.requests.post')
+    @patch('pollinations.client.requests.post')
     def test_streaming_with_finish_reason(self, mock_post):
         """Test that finish_reason is properly set in streaming."""
         import json
@@ -274,7 +274,7 @@ class TestOpenAICompatibility(unittest.TestCase):
         last_chunk = chunks[-1]
         self.assertEqual(last_chunk.choices[0].finish_reason, "stop")
     
-    @patch('polinations.client.requests.post')
+    @patch('pollinations.client.requests.post')
     def test_streaming_error_handling(self, mock_post):
         """Test error handling in streaming."""
         import requests
