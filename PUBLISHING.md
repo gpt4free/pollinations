@@ -117,6 +117,8 @@ Version numbers should follow [Semantic Versioning](https://semver.org/):
 - **MINOR** version for new functionality in a backward compatible manner  
 - **PATCH** version for backward compatible bug fixes
 
-Update the version in:
+Update the version in both locations (keep them in sync):
 1. `pyproject.toml` (line with `version = "X.Y.Z"`)
 2. `polinations/__init__.py` (line with `__version__ = "X.Y.Z"`)
+
+**Note**: Future improvement could use dynamic versioning with `setuptools_scm` or read version from `__init__.py` to maintain a single source of truth.

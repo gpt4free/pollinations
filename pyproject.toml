@@ -35,6 +35,5 @@ Homepage = "https://github.com/gpt4free/polinations"
 Repository = "https://github.com/gpt4free/polinations"
 Issues = "https://github.com/gpt4free/polinations/issues"
 
-[tool.setuptools.packages.find]
-where = ["."]
-include = ["polinations*"]
+[tool.setuptools]
+packages = ["polinations"]
