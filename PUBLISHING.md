@@ -51,8 +51,8 @@ python -m build
 ```
 
 This creates:
-- `dist/polinations-X.Y.Z.tar.gz` (source distribution)
-- `dist/polinations-X.Y.Z-py3-none-any.whl` (wheel distribution)
+- `dist/pollinations_client-X.Y.Z.tar.gz` (source distribution)
+- `dist/pollinations_client-X.Y.Z-py3-none-any.whl` (wheel distribution)
 
 ### Verify the Package
 
@@ -61,7 +61,7 @@ This creates:
 twine check dist/*
 
 # Install locally to test
-pip install dist/polinations-*.whl
+pip install dist/pollinations_client-*.whl
 ```
 
 ### Publish to PyPI
@@ -101,7 +101,7 @@ To enable automated publishing, the repository owner needs to:
 
 1. Go to https://pypi.org/manage/account/publishing/
 2. Add a new "pending publisher":
-   - PyPI Project Name: `polinations`
+   - PyPI Project Name: `pollinations-client`
    - Owner: `gpt4free`
    - Repository name: `polinations`
    - Workflow name: `publish-to-pypi.yml`
