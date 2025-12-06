@@ -157,6 +157,23 @@ class TestPolinations(unittest.TestCase):
         self.assertEqual(payload['messages'][0]['content'], 'You are helpful')
     
     @patch('polinations.client.requests.post')
+    def test_generate_text_with_zero_max_tokens(self, mock_post):
+        """Test that max_tokens=0 is properly handled."""
+        mock_response = Mock()
+        mock_response.ok = True
+        mock_response.text = "Response"
+        mock_post.return_value = mock_response
+        
+        self.client.generate_text("Test", max_tokens=0)
+        
+        call_args = mock_post.call_args
+        payload = call_args[1]['json']
+        
+        # max_tokens should be present even when set to 0
+        self.assertIn('max_tokens', payload)
+        self.assertEqual(payload['max_tokens'], 0)
+    
+    @patch('polinations.client.requests.post')
     def test_generate_text_error(self, mock_post):
         """Test error handling in text generation."""
         import requests

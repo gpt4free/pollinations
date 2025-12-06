@@ -38,6 +38,10 @@ class Polinations:
         self._image_models_cache = None
         self._text_models_cache = None
     
+    def _get_status_code(self, exception):
+        """Extract status code from requests exception if available."""
+        return getattr(exception.response, 'status_code', None) if hasattr(exception, 'response') else None
+    
     def get_image_models(self, force_refresh: bool = False) -> List[str]:
         """
         Get list of available image generation models.
@@ -62,8 +66,7 @@ class Polinations:
             self._image_models_cache = models
             return models
         except requests.RequestException as e:
-            raise APIError(f"Failed to fetch image models: {str(e)}", 
-                          getattr(e.response, 'status_code', None) if hasattr(e, 'response') else None)
+            raise APIError(f"Failed to fetch image models: {str(e)}", self._get_status_code(e))
     
     def get_text_models(self, force_refresh: bool = False) -> List[Dict[str, Any]]:
         """
@@ -89,8 +92,7 @@ class Polinations:
             self._text_models_cache = models
             return models
         except requests.RequestException as e:
-            raise APIError(f"Failed to fetch text models: {str(e)}", 
-                          getattr(e.response, 'status_code', None) if hasattr(e, 'response') else None)
+            raise APIError(f"Failed to fetch text models: {str(e)}", self._get_status_code(e))
     
     def generate_image(
         self,
@@ -207,8 +209,7 @@ class Polinations:
             
             return output_path
         except requests.RequestException as e:
-            raise APIError(f"Failed to download image: {str(e)}", 
-                          getattr(e.response, 'status_code', None) if hasattr(e, 'response') else None)
+            raise APIError(f"Failed to download image: {str(e)}", self._get_status_code(e))
         except IOError as e:
             raise APIError(f"Failed to save image to {output_path}: {str(e)}")
     
@@ -252,7 +253,7 @@ class Polinations:
             params["model"] = model
         if temperature is not None:
             params["temperature"] = temperature
-        if max_tokens:
+        if max_tokens is not None:
             params["max_tokens"] = max_tokens
         if seed is not None:
             params["seed"] = seed
@@ -264,5 +265,4 @@ class Polinations:
             response.raise_for_status()
             return response.text
         except requests.RequestException as e:
-            raise APIError(f"Failed to generate text: {str(e)}", 
-                          getattr(e.response, 'status_code', None) if hasattr(e, 'response') else None)
+            raise APIError(f"Failed to generate text: {str(e)}", self._get_status_code(e))
