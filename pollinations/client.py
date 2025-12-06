@@ -147,7 +147,17 @@ class Pollinations:
         nologo: bool = False,
         private: bool = False,
         enhance: bool = False,
-        validate_model: bool = False
+        validate_model: bool = False,
+        negative_prompt: Optional[str] = None,
+        quality: Optional[str] = None,
+        transparent: bool = False,
+        guidance_scale: Optional[float] = None,
+        nofeed: bool = False,
+        safe: bool = False,
+        image: Optional[str] = None,
+        duration: Optional[int] = None,
+        aspectRatio: Optional[str] = None,
+        audio: bool = False
     ) -> str:
         """
         Generate an image from a text prompt.
@@ -162,6 +172,16 @@ class Pollinations:
             private: If True, image won't be published to feed (optional)
             enhance: If True, automatically enhances the prompt (optional)
             validate_model: If True, validates model exists before generating (optional)
+            negative_prompt: What to avoid in the generated image (optional)
+            quality: Image quality level - "low", "medium", "high", or "hd" (optional)
+            transparent: If True, generates with transparent background (optional)
+            guidance_scale: How closely to follow the prompt, 1-20 (optional)
+            nofeed: If True, don't add to public feed (optional)
+            safe: If True, enable safety content filters (optional)
+            image: Reference image URL(s) for image-to-image. Comma/pipe separated for multiple (optional)
+            duration: Video duration in seconds (for video models) (optional)
+            aspectRatio: Video aspect ratio - "16:9" or "9:16" (for video models) (optional)
+            audio: If True, enable audio generation for video (veo only) (optional)
             
         Returns:
             URL of the generated image
@@ -176,7 +196,11 @@ class Pollinations:
                 raise ModelNotFoundError(f"Model '{model}' not found. Available models: {', '.join(available_models)}")
         
         encoded_prompt = urllib.parse.quote(prompt)
-        url = f"{self.IMAGE_BASE_URL}/prompt/{encoded_prompt}"
+        # gen.pollinations.ai uses /image/{prompt}, image.pollinations.ai uses /prompt/{prompt}
+        if self.api_key:
+            url = f"{self.IMAGE_BASE_URL}/{encoded_prompt}"
+        else:
+            url = f"{self.IMAGE_BASE_URL}/prompt/{encoded_prompt}"
         
         params = []
         if model:
@@ -193,6 +217,26 @@ class Pollinations:
             params.append("private=true")
         if enhance:
             params.append("enhance=true")
+        if negative_prompt:
+            params.append(f"negative_prompt={urllib.parse.quote(negative_prompt)}")
+        if quality:
+            params.append(f"quality={quality}")
+        if transparent:
+            params.append("transparent=true")
+        if guidance_scale is not None:
+            params.append(f"guidance_scale={guidance_scale}")
+        if nofeed:
+            params.append("nofeed=true")
+        if safe:
+            params.append("safe=true")
+        if image:
+            params.append(f"image={urllib.parse.quote(image)}")
+        if duration is not None:
+            params.append(f"duration={duration}")
+        if aspectRatio:
+            params.append(f"aspectRatio={aspectRatio}")
+        if audio:
+            params.append("audio=true")
         
         if params:
             url += "?" + "&".join(params)
@@ -209,7 +253,14 @@ class Pollinations:
         seed: Optional[int] = None,
         nologo: bool = False,
         private: bool = False,
-        enhance: bool = False
+        enhance: bool = False,
+        negative_prompt: Optional[str] = None,
+        quality: Optional[str] = None,
+        transparent: bool = False,
+        guidance_scale: Optional[float] = None,
+        nofeed: bool = False,
+        safe: bool = False,
+        image: Optional[str] = None
     ) -> str:
         """
         Generate and download an image to a local file.
@@ -224,6 +275,13 @@ class Pollinations:
             nologo: If True, removes Pollinations logo from image (optional)
             private: If True, image won't be published to feed (optional)
             enhance: If True, automatically enhances the prompt (optional)
+            negative_prompt: What to avoid in the generated image (optional)
+            quality: Image quality level - "low", "medium", "high", or "hd" (optional)
+            transparent: If True, generates with transparent background (optional)
+            guidance_scale: How closely to follow the prompt, 1-20 (optional)
+            nofeed: If True, don't add to public feed (optional)
+            safe: If True, enable safety content filters (optional)
+            image: Reference image URL(s) for image-to-image. Comma/pipe separated for multiple (optional)
             
         Returns:
             Path to the saved image file
@@ -240,7 +298,14 @@ class Pollinations:
             seed=seed,
             nologo=nologo,
             private=private,
-            enhance=enhance
+            enhance=enhance,
+            negative_prompt=negative_prompt,
+            quality=quality,
+            transparent=transparent,
+            guidance_scale=guidance_scale,
+            nofeed=nofeed,
+            safe=safe,
+            image=image
         )
         
         try:
