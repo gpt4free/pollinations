@@ -46,8 +46,6 @@ class Polinations:
     TEXT_BASE_URL = "https://text.pollinations.ai"
     
     # Alternative API endpoints that support API keys
-    ENTER_IMAGE_URL = "https://enter.pollinations.ai/image"
-    ENTER_TEXT_URL = "https://enter.pollinations.ai/text"
     GEN_IMAGE_URL = "https://gen.pollinations.ai/image"
     GEN_TEXT_URL = "https://gen.pollinations.ai/text"
     
@@ -57,7 +55,7 @@ class Polinations:
         
         Args:
             timeout: Request timeout in seconds (default: 30)
-            api_key: Optional API key for enter.pollinations.ai or gen.pollinations.ai
+            api_key: Optional API key for gen.pollinations.ai
                     If provided, uses authenticated endpoints
         """
         self.timeout = timeout
@@ -71,9 +69,9 @@ class Polinations:
         
         # Update base URLs if API key is provided
         if self.api_key:
-            # Use enter.pollinations.ai when API key is provided
-            self.IMAGE_BASE_URL = self.ENTER_IMAGE_URL
-            self.TEXT_BASE_URL = self.ENTER_TEXT_URL
+            # Use gen.pollinations.ai when API key is provided
+            self.IMAGE_BASE_URL = self.GEN_IMAGE_URL
+            self.TEXT_BASE_URL = self.GEN_TEXT_URL
     
     def _get_status_code(self, exception):
         """Extract status code from requests exception if available."""

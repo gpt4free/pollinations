@@ -22,9 +22,9 @@ class TestOpenAICompatibility(unittest.TestCase):
         """Test client initialization with API key."""
         client = Polinations(api_key="test-key-123")
         self.assertEqual(client.api_key, "test-key-123")
-        # Should use enter.pollinations.ai when API key is provided
-        self.assertIn("enter.pollinations.ai", client.IMAGE_BASE_URL)
-        self.assertIn("enter.pollinations.ai", client.TEXT_BASE_URL)
+        # Should use gen.pollinations.ai when API key is provided
+        self.assertIn("gen.pollinations.ai", client.IMAGE_BASE_URL)
+        self.assertIn("gen.pollinations.ai", client.TEXT_BASE_URL)
     
     def test_headers_with_api_key(self):
         """Test that headers include API key when provided."""

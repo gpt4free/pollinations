@@ -41,7 +41,7 @@ from polinations import Polinations
 # Create a client (no API key required for free tier)
 client = Polinations()
 
-# Or with API key for enter.pollinations.ai / gen.pollinations.ai
+# Or with API key for gen.pollinations.ai
 # client = Polinations(api_key="your-api-key")
 
 # Chat completion (OpenAI-compatible)
@@ -133,7 +133,7 @@ Create a new Polinations client.
 
 **Parameters:**
 - `timeout` (int): Request timeout in seconds (default: 30)
-- `api_key` (str, optional): API key for enter.pollinations.ai or gen.pollinations.ai (enables authenticated endpoints)
+- `api_key` (str, optional): API key for gen.pollinations.ai (enables authenticated endpoints)
 
 ### OpenAI-Compatible API
 
@@ -232,18 +232,18 @@ See the [examples](examples/) directory for more usage examples:
 
 ## API Key Support
 
-The client supports optional API keys for `enter.pollinations.ai` and `gen.pollinations.ai`:
+The client supports optional API keys for `gen.pollinations.ai`:
 
 ```python
 # Without API key (free tier, uses image.pollinations.ai and text.pollinations.ai)
 client = Polinations()
 
-# With API key (uses enter.pollinations.ai endpoints)
+# With API key (uses gen.pollinations.ai endpoints)
 client = Polinations(api_key="your-api-key-here")
 ```
 
 When an API key is provided:
-- Requests use authenticated endpoints (`enter.pollinations.ai` or `gen.pollinations.ai`)
+- Requests use authenticated endpoints (`gen.pollinations.ai`)
 - API key is sent in the `Authorization` header as a Bearer token
 - May provide access to additional features or higher rate limits
 

@@ -147,7 +147,7 @@ client = Polinations()
 
 ```python
 client = Polinations(api_key="your-api-key-here")
-# Uses: enter.pollinations.ai endpoints
+# Uses: gen.pollinations.ai endpoints
 # API key sent as: Authorization: Bearer your-api-key-here
 ```
 

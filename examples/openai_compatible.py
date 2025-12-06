@@ -17,7 +17,7 @@ def main():
     # Without API key (uses free public API)
     client = Polinations()
     
-    # With API key (uses enter.pollinations.ai or gen.pollinations.ai)
+    # With API key (uses gen.pollinations.ai)
     # client = Polinations(api_key="your-api-key-here")
     
     # ========================================================================
