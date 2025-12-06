@@ -11,10 +11,11 @@ Polinations provides free, unlimited access to various AI models for text and im
 
 - 🎨 **Image Generation**: Create images from text descriptions
 - 💬 **Text Generation**: Generate text using various language models
-- 🔄 **No API Key Required**: Completely free to use
-- 🚀 **Simple API**: Easy-to-use interface
+- 🔄 **No API Key Required**: Completely free to use (API key optional for advanced features)
+- 🚀 **Simple API**: Easy-to-use interface with both native and OpenAI-compatible APIs
 - 🎯 **Multiple Models**: Access to various AI models
 - ⚡ **Fast**: Direct API access with minimal overhead
+- 🔌 **OpenAI Compatible**: Drop-in replacement for OpenAI API (`client.chat.completions.create()`, `client.images.generate()`)
 
 ## Installation
 
@@ -32,7 +33,40 @@ pip install -e .
 
 ## Quick Start
 
-### Text Generation
+### OpenAI-Compatible API (Recommended)
+
+```python
+from polinations import Polinations
+
+# Create a client (no API key required for free tier)
+client = Polinations()
+
+# Or with API key for enter.pollinations.ai / gen.pollinations.ai
+# client = Polinations(api_key="your-api-key")
+
+# Chat completion (OpenAI-compatible)
+response = client.chat.completions.create(
+    messages=[
+        {"role": "system", "content": "You are a helpful assistant."},
+        {"role": "user", "content": "Explain quantum computing in simple terms"}
+    ],
+    model="openai",
+    temperature=0.7
+)
+print(response.choices[0].message.content)
+
+# Image generation (OpenAI-compatible)
+response = client.images.generate(
+    prompt="A serene mountain landscape at sunset",
+    size="1024x768",
+    model="flux"
+)
+print(response.data[0]["url"])
+```
+
+### Native API
+
+#### Text Generation
 
 ```python
 from polinations import Polinations
@@ -93,12 +127,45 @@ client.download_image(
 
 ### Polinations Client
 
-#### `__init__(timeout=30)`
+#### `__init__(timeout=30, api_key=None)`
 
 Create a new Polinations client.
 
 **Parameters:**
 - `timeout` (int): Request timeout in seconds (default: 30)
+- `api_key` (str, optional): API key for enter.pollinations.ai or gen.pollinations.ai (enables authenticated endpoints)
+
+### OpenAI-Compatible API
+
+The client provides OpenAI-compatible interfaces that can be used as drop-in replacements for OpenAI's API.
+
+#### `client.chat.completions.create(messages, model=None, temperature=None, max_tokens=None, **kwargs)`
+
+Create a chat completion (OpenAI-compatible).
+
+**Parameters:**
+- `messages` (list): List of message dicts with 'role' and 'content'
+- `model` (str, optional): Model name to use
+- `temperature` (float, optional): Sampling temperature 0-1
+- `max_tokens` (int, optional): Maximum tokens to generate
+- `stream` (bool): Must be False (streaming not supported)
+
+**Returns:** ChatCompletion object with `choices[0].message.content`
+
+#### `client.images.generate(prompt, model=None, size=None, n=1, **kwargs)`
+
+Generate images (OpenAI-compatible).
+
+**Parameters:**
+- `prompt` (str): Text description of the image
+- `model` (str, optional): Model name to use
+- `size` (str, optional): Image size in format "WIDTHxHEIGHT" (e.g., "1024x768")
+- `n` (int): Number of images (must be 1)
+- `response_format` (str): Must be "url"
+
+**Returns:** ImageResponse object with `data[0]["url"]`
+
+### Native API
 
 #### `generate_text(prompt, model=None, system=None, temperature=None, max_tokens=None, seed=None, jsonMode=False)`
 
@@ -158,9 +225,27 @@ Get list of available text generation models.
 
 See the [examples](examples/) directory for more usage examples:
 
+- [OpenAI-Compatible API](examples/openai_compatible.py) - **NEW!** OpenAI-compatible interface examples
 - [Text Generation Examples](examples/text_generation.py)
 - [Image Generation Examples](examples/image_generation.py)
 - [List Models](examples/list_models.py)
+
+## API Key Support
+
+The client supports optional API keys for `enter.pollinations.ai` and `gen.pollinations.ai`:
+
+```python
+# Without API key (free tier, uses image.pollinations.ai and text.pollinations.ai)
+client = Polinations()
+
+# With API key (uses enter.pollinations.ai endpoints)
+client = Polinations(api_key="your-api-key-here")
+```
+
+When an API key is provided:
+- Requests use authenticated endpoints (`enter.pollinations.ai` or `gen.pollinations.ai`)
+- API key is sent in the `Authorization` header as a Bearer token
+- May provide access to additional features or higher rate limits
 
 ## Error Handling
 

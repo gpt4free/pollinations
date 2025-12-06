@@ -5,6 +5,7 @@ from typing import Optional, List, Dict, Any
 import requests
 
 from .exceptions import APIError, ModelNotFoundError
+from .openai_compat import Images, Chat
 
 
 class Polinations:
@@ -12,8 +13,9 @@ class Polinations:
     Client for interacting with Polinations AI APIs.
     
     Polinations provides free APIs for text generation (chat) and image generation.
+    Supports both native API and OpenAI-compatible interfaces.
     
-    Example:
+    Example (Native API):
         >>> client = Polinations()
         >>> # Generate text
         >>> response = client.generate_text("Hello, how are you?")
@@ -22,25 +24,67 @@ class Polinations:
         >>> # Generate image
         >>> image_url = client.generate_image("A beautiful sunset over mountains")
         >>> print(image_url)
+    
+    Example (OpenAI-compatible API):
+        >>> client = Polinations(api_key="your-api-key")
+        >>> # Chat completion
+        >>> response = client.chat.completions.create(
+        ...     model="openai",
+        ...     messages=[{"role": "user", "content": "Hello!"}]
+        ... )
+        >>> print(response.choices[0].message.content)
+        >>> 
+        >>> # Image generation
+        >>> response = client.images.generate(
+        ...     prompt="A sunset",
+        ...     size="1024x768"
+        ... )
+        >>> print(response.data[0]["url"])
     """
     
     IMAGE_BASE_URL = "https://image.pollinations.ai"
     TEXT_BASE_URL = "https://text.pollinations.ai"
     
-    def __init__(self, timeout: int = 30):
+    # Alternative API endpoints that support API keys
+    ENTER_IMAGE_URL = "https://enter.pollinations.ai/image"
+    ENTER_TEXT_URL = "https://enter.pollinations.ai/text"
+    GEN_IMAGE_URL = "https://gen.pollinations.ai/image"
+    GEN_TEXT_URL = "https://gen.pollinations.ai/text"
+    
+    def __init__(self, timeout: int = 30, api_key: Optional[str] = None):
         """
         Initialize the Polinations client.
         
         Args:
             timeout: Request timeout in seconds (default: 30)
+            api_key: Optional API key for enter.pollinations.ai or gen.pollinations.ai
+                    If provided, uses authenticated endpoints
         """
         self.timeout = timeout
+        self.api_key = api_key
         self._image_models_cache = None
         self._text_models_cache = None
+        
+        # Initialize OpenAI-compatible interfaces
+        self.images = Images(self)
+        self.chat = Chat(self)
+        
+        # Update base URLs if API key is provided
+        if self.api_key:
+            # Use enter.pollinations.ai when API key is provided
+            self.IMAGE_BASE_URL = self.ENTER_IMAGE_URL
+            self.TEXT_BASE_URL = self.ENTER_TEXT_URL
     
     def _get_status_code(self, exception):
         """Extract status code from requests exception if available."""
         return getattr(exception.response, 'status_code', None) if hasattr(exception, 'response') else None
+    
+    def _get_headers(self) -> Dict[str, str]:
+        """Get headers with API key if available."""
+        headers = {}
+        if self.api_key:
+            headers["Authorization"] = f"Bearer {self.api_key}"
+        return headers
     
     def get_image_models(self, force_refresh: bool = False) -> List[str]:
         """
@@ -60,7 +104,7 @@ class Polinations:
         
         try:
             url = f"{self.IMAGE_BASE_URL}/models"
-            response = requests.get(url, timeout=self.timeout)
+            response = requests.get(url, headers=self._get_headers(), timeout=self.timeout)
             response.raise_for_status()
             models = response.json()
             self._image_models_cache = models
@@ -86,7 +130,7 @@ class Polinations:
         
         try:
             url = f"{self.TEXT_BASE_URL}/models"
-            response = requests.get(url, timeout=self.timeout)
+            response = requests.get(url, headers=self._get_headers(), timeout=self.timeout)
             response.raise_for_status()
             models = response.json()
             self._text_models_cache = models
@@ -201,7 +245,7 @@ class Polinations:
         )
         
         try:
-            response = requests.get(url, timeout=self.timeout)
+            response = requests.get(url, headers=self._get_headers(), timeout=self.timeout)
             response.raise_for_status()
             
             with open(output_path, 'wb') as f:
@@ -261,7 +305,7 @@ class Polinations:
             params["jsonMode"] = True
         
         try:
-            response = requests.post(url, json=params, timeout=self.timeout)
+            response = requests.post(url, json=params, headers=self._get_headers(), timeout=self.timeout)
             response.raise_for_status()
             return response.text
         except requests.RequestException as e:
