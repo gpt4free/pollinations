@@ -1,0 +1,26 @@
+{
+  "name": "pollinations-javascript-examples",
+  "version": "1.0.0",
+  "description": "JavaScript examples for Pollinations API using @gpt4free/g4f.dev client",
+  "type": "module",
+  "scripts": {
+    "openai": "node openai_compatible.js",
+    "streaming": "node streaming.js",
+    "images": "node image_generation.js",
+    "text": "node text_generation.js",
+    "tools": "node tool_calls_and_reasoning.js"
+  },
+  "keywords": [
+    "pollinations",
+    "ai",
+    "openai",
+    "chat",
+    "images",
+    "gpt4free"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@gpt4free/g4f.dev": "^1.0.0"
+  }
+}
