@@ -151,7 +151,7 @@ class TestPollinations(unittest.TestCase):
         self.assertEqual(payload['temperature'], 0.7)
         self.assertEqual(payload['max_tokens'], 100)
         self.assertEqual(payload['seed'], 42)
-        self.assertTrue(payload['json'])
+        self.assertEqual(payload['response_format'], {"mode": "json_object"})
         # System message should be first
         self.assertEqual(payload['messages'][0]['role'], 'system')
         self.assertEqual(payload['messages'][0]['content'], 'You are helpful')

@@ -79,12 +79,24 @@ class TestOpenAICompatibility(unittest.TestCase):
             self.client.images.generate(prompt="Test", response_format="b64_json")
         self.assertIn("Only response_format='url' is supported", str(context.exception))
     
-    @patch('pollinations.client.requests.post')
+    @patch('pollinations.openai_compat.requests.post')
     def test_chat_completions_create_simple(self, mock_post):
         """Test simple chat completion."""
         mock_response = Mock()
         mock_response.ok = True
-        mock_response.text = "Hello! How can I help you?"
+        mock_response.json.return_value = {
+            "id": "chatcmpl-test",
+            "object": "chat.completion",
+            "model": "openai",
+            "choices": [{
+                "index": 0,
+                "message": {
+                    "role": "assistant",
+                    "content": "Hello! How can I help you?"
+                },
+                "finish_reason": "stop"
+            }]
+        }
         mock_post.return_value = mock_response
         
         response = self.client.chat.completions.create(
@@ -97,12 +109,17 @@ class TestOpenAICompatibility(unittest.TestCase):
         self.assertEqual(response.choices[0].message.content, "Hello! How can I help you?")
         self.assertEqual(response.choices[0].finish_reason, "stop")
     
-    @patch('pollinations.client.requests.post')
+    @patch('pollinations.openai_compat.requests.post')
     def test_chat_completions_create_with_system(self, mock_post):
         """Test chat completion with system message."""
         mock_response = Mock()
         mock_response.ok = True
-        mock_response.text = "Response"
+        mock_response.json.return_value = {
+            "choices": [{
+                "message": {"role": "assistant", "content": "Response"},
+                "finish_reason": "stop"
+            }]
+        }
         mock_post.return_value = mock_response
         
         self.client.chat.completions.create(
@@ -117,12 +134,18 @@ class TestOpenAICompatibility(unittest.TestCase):
         # System message should have been passed
         self.assertTrue(mock_post.called)
     
-    @patch('pollinations.client.requests.post')
+    @patch('pollinations.openai_compat.requests.post')
     def test_chat_completions_create_with_params(self, mock_post):
         """Test chat completion with parameters."""
         mock_response = Mock()
         mock_response.ok = True
-        mock_response.text = "Response"
+        mock_response.json.return_value = {
+            "model": "openai",
+            "choices": [{
+                "message": {"role": "assistant", "content": "Response"},
+                "finish_reason": "stop"
+            }]
+        }
         mock_post.return_value = mock_response
         
         response = self.client.chat.completions.create(
@@ -191,13 +214,24 @@ class TestOpenAICompatibility(unittest.TestCase):
         self.assertIsNotNone(first_chunk.choices)
         self.assertEqual(len(first_chunk.choices), 1)
     
-    def test_chat_completions_no_user_message(self):
-        """Test that missing user message raises an error."""
-        with self.assertRaises(ValueError) as context:
-            self.client.chat.completions.create(
-                messages=[{"role": "system", "content": "You are helpful"}]
-            )
-        self.assertIn("At least one user message is required", str(context.exception))
+    @patch('pollinations.openai_compat.requests.post')
+    def test_chat_completions_with_only_system_message(self, mock_post):
+        """Test that system-only messages are accepted."""
+        mock_response = Mock()
+        mock_response.ok = True
+        mock_response.json.return_value = {
+            "choices": [{
+                "message": {"role": "assistant", "content": "Hello!"},
+                "finish_reason": "stop"
+            }]
+        }
+        mock_post.return_value = mock_response
+        
+        # Should not raise an error
+        response = self.client.chat.completions.create(
+            messages=[{"role": "system", "content": "You are helpful"}]
+        )
+        self.assertEqual(response.choices[0].message.content, "Hello!")
     
     @patch('pollinations.client.requests.post')
     def test_streaming_with_finish_reason(self, mock_post):

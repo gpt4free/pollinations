@@ -12,6 +12,18 @@ class ImageResponseElement:
     def __init__(self, url: str, revised_prompt: Optional[str] = None):
         self.url = url
         self.revised_prompt = revised_prompt
+    
+    def __getitem__(self, key):
+        """Support dictionary-style access for backward compatibility."""
+        if key == "url":
+            return self.url
+        elif key == "revised_prompt":
+            return self.revised_prompt
+        raise KeyError(key)
+    
+    def __contains__(self, key):
+        """Support 'in' operator."""
+        return key in ["url", "revised_prompt"]
 
 class ImageResponse:
     """OpenAI-compatible image generation response."""
