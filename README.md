@@ -429,7 +429,9 @@ for chunk in stream:
 
 ## Examples
 
-See the [examples](examples/) directory for more usage examples:
+### Python Examples
+
+See the [examples](examples/) directory for Python usage examples:
 
 - [OpenAI-Compatible API](examples/openai_compatible.py) - OpenAI-compatible interface examples
 - [Tool Calls and Reasoning](examples/tool_calls_and_reasoning.py) - **NEW!** Function calling and reasoning examples
@@ -437,6 +439,18 @@ See the [examples](examples/) directory for more usage examples:
 - [Text Generation Examples](examples/text_generation.py)
 - [Image Generation Examples](examples/image_generation.py)
 - [List Models](examples/list_models.py)
+
+### JavaScript Examples
+
+JavaScript/Node.js examples using the `@gpt4free/g4f.dev` client are available in [examples/javascript](examples/javascript/):
+
+- [OpenAI-Compatible API](examples/javascript/openai_compatible.js) - OpenAI-compatible interface examples
+- [Tool Calls and Reasoning](examples/javascript/tool_calls_and_reasoning.js) - Function calling and reasoning examples
+- [Streaming Examples](examples/javascript/streaming.js) - Real-time streaming text generation
+- [Text Generation Examples](examples/javascript/text_generation.js) - Basic text generation
+- [Image Generation Examples](examples/javascript/image_generation.js) - Image generation with various models
+
+See the [JavaScript README](examples/javascript/README.md) for installation and usage instructions.
 
 ## API Key Support
 
