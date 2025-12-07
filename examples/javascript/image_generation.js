@@ -6,8 +6,6 @@
  */
 
 import { Pollinations } from '@gpt4free/g4f.dev';
-// For browser usage with DOM manipulation
-// const { Pollinations } = require('@gpt4free/g4f.dev'); // CommonJS
 
 async function main() {
   console.log('='.repeat(70));

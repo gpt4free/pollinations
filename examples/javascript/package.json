@@ -21,6 +21,6 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@gpt4free/g4f.dev": "latest"
+    "@gpt4free/g4f.dev": "^1.0.0"
   }
 }
