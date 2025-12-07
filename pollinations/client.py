@@ -53,7 +53,7 @@ class Pollinations:
     # OpenAI-compatible endpoint for public API
     TEXT_OPENAI_URL = "https://text.pollinations.ai/openai"
     
-    def __init__(self, timeout: int = 30, api_key: Optional[str] = None):
+    def __init__(self, timeout: int = 600, api_key: Optional[str] = None):
         """
         Initialize the Pollinations client.
         

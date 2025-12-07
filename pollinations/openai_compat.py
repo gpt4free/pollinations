@@ -4,12 +4,20 @@ from typing import Optional, List, Dict, Any, Union, Iterator
 import json
 import requests
 
+from .exceptions import APIError
+
+class ImageResponseElement:
+    """Element of OpenAI-compatible image generation response."""
+    
+    def __init__(self, url: str, revised_prompt: Optional[str] = None):
+        self.url = url
+        self.revised_prompt = revised_prompt
 
 class ImageResponse:
     """OpenAI-compatible image generation response."""
     
     def __init__(self, url: str, revised_prompt: Optional[str] = None):
-        self.data = [{"url": url, "revised_prompt": revised_prompt}]
+        self.data = [ImageResponseElement(url, revised_prompt)]
         self.created = None
 
 
@@ -152,6 +160,12 @@ class Images:
             height=height,
             **kwargs
         )
+
+        try:
+            response = requests.get(url, timeout=self._client.timeout, headers=self._client._get_headers())
+            response.raise_for_status()
+        except requests.RequestException as e:
+            raise APIError(f"Failed to fetch image: {str(e)}")
         
         return ImageResponse(url, revised_prompt=prompt)
 
