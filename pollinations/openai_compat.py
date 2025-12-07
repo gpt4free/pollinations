@@ -91,6 +91,10 @@ class ChatCompletionMessage:
         self.reasoning_content = reasoning_content
     
     def to_dict(self):
+        """Convert message to dictionary.
+        
+        Note: Only includes fields with meaningful values for OpenAI API compatibility.
+        """
         result = {"role": self.role}
         if self.content is not None:
             result["content"] = self.content

@@ -8,11 +8,14 @@ reasoning features in the OpenAI-compatible API.
 from pollinations import Pollinations
 import json
 
+# Constants for formatting
+SEPARATOR_WIDTH = 70
+
 
 def main():
-    print("=" * 70)
+    print("=" * SEPARATOR_WIDTH)
     print("Tool Calls and Reasoning Examples")
-    print("=" * 70)
+    print("=" * SEPARATOR_WIDTH)
     
     # Initialize client
     client = Pollinations()
@@ -22,7 +25,7 @@ def main():
     # ========================================================================
     
     print("\n1. Using Tool Calls (Function Calling):")
-    print("-" * 70)
+    print("-" * SEPARATOR_WIDTH)
     
     # Define tools (functions) that the model can use
     tools = [
@@ -150,7 +153,7 @@ def main():
     # ========================================================================
     
     print("\n\n2. Using Reasoning:")
-    print("-" * 70)
+    print("-" * SEPARATOR_WIDTH)
     
     # Example 1: Basic reasoning request
     print("\nExample 2a: Request with reasoning_effort")
@@ -199,7 +202,7 @@ def main():
     # ========================================================================
     
     print("\n\n3. Streaming with Tool Calls and Reasoning:")
-    print("-" * 70)
+    print("-" * SEPARATOR_WIDTH)
     
     print("\nExample 3a: Streaming with tool calls")
     stream = client.chat.completions.create(
@@ -261,7 +264,7 @@ def main():
     # ========================================================================
     
     print("\n\n4. Combined Tool Calls and Reasoning:")
-    print("-" * 70)
+    print("-" * SEPARATOR_WIDTH)
     
     print("Note: Attempting with both tools and reasoning_effort (reasoning_effort may not be supported)")
     try:
@@ -298,9 +301,9 @@ def main():
         else:
             print(f"  Response: {response.choices[0].message.content}")
     
-    print("\n" + "=" * 70)
+    print("\n" + "=" * SEPARATOR_WIDTH)
     print("Tool Calls and Reasoning features demonstrated!")
-    print("=" * 70)
+    print("=" * SEPARATOR_WIDTH)
 
 
 if __name__ == "__main__":
