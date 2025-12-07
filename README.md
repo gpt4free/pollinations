@@ -124,12 +124,6 @@ client = Pollinations()
 response = client.generate_text("What is the meaning of life?")
 print(response)
 
-# Streaming text generation (NEW!)
-stream = client.generate_text_stream("Tell me a story")
-for chunk in stream:
-    if chunk.choices[0].delta.content:
-        print(chunk.choices[0].delta.content, end="", flush=True)
-
 # Use a specific model
 response = client.generate_text(
     "Explain quantum computing",
