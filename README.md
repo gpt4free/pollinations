@@ -203,7 +203,7 @@ Create a chat completion (OpenAI-compatible).
 - `stream` (bool): Enable streaming mode (default: False)
 - `tools` (list, optional): List of tools/functions the model can call
 - `tool_choice` (str or dict, optional): Controls which tool is called ("auto", "none", or specific tool)
-- `reasoning_effort` (str, optional): Level of reasoning for reasoning models ("low", "medium", "high")
+- `reasoning_effort` (str, optional): Level of reasoning ("low", "medium", "high"). Note: May not be supported by all endpoints
 
 **Returns:** 
 - ChatCompletion object with `choices[0].message.content` (if stream=False)
@@ -212,7 +212,7 @@ Create a chat completion (OpenAI-compatible).
 **Response fields:**
 - `choices[0].message.content`: The generated text response
 - `choices[0].message.tool_calls`: List of tool calls requested by the model (if any)
-- `choices[0].message.reasoning_content`: The model's reasoning process (if reasoning_effort is set)
+- `choices[0].message.reasoning_content`: The model's reasoning process (if available from the model)
 
 #### `client.images.generate(prompt, model=None, size=None, n=1, **kwargs)`
 
@@ -387,30 +387,38 @@ tool_choice={"type": "function", "function": {"name": "get_weather"}}
 
 Reasoning models expose their chain-of-thought process, showing how they arrived at an answer.
 
+**Important distinction:**
+- **`reasoning_effort`** (request parameter): Controls the level of reasoning - "low", "medium", "high". *Note: This parameter may not be supported by all Pollinations endpoints. The API will return an error if unsupported.*
+- **`reasoning_content`** (response field): Contains the model's actual reasoning/thinking process
+
 ### Using Reasoning
 
 ```python
 response = client.chat.completions.create(
     messages=[{"role": "user", "content": "Calculate the factorial of 5"}],
-    reasoning_effort="high"  # Options: "low", "medium", "high"
+    reasoning_effort="high"  # Optional: "low", "medium", "high"
+                             # May not be supported by all endpoints
 )
 
-# Access reasoning process
-print(f"Reasoning: {response.choices[0].message.reasoning_content}")
+# Access reasoning process (if provided by the model)
+if response.choices[0].message.reasoning_content:
+    print(f"Reasoning: {response.choices[0].message.reasoning_content}")
 print(f"Answer: {response.choices[0].message.content}")
 ```
+
+**Note:** Some models automatically provide `reasoning_content` without needing the `reasoning_effort` parameter. The availability of this feature depends on the specific model and endpoint being used.
 
 ### Streaming with Reasoning
 
 ```python
 stream = client.chat.completions.create(
     messages=[{"role": "user", "content": "Solve this problem"}],
-    reasoning_effort="medium",
+    reasoning_effort="medium",  # Optional, may not be supported
     stream=True
 )
 
 for chunk in stream:
-    # Reasoning tokens
+    # Reasoning tokens (if provided by model)
     if chunk.choices[0].delta.reasoning_content:
         print(f"[Reasoning] {chunk.choices[0].delta.reasoning_content}")
     

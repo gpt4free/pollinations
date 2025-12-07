@@ -121,18 +121,26 @@ tool_choice={"type": "function", "function": {"name": "get_weather"}}
 
 ### Reasoning Support **NEW!**
 
-Access the model's chain-of-thought reasoning process:
+Access the model's chain-of-thought reasoning process.
+
+**Key Concepts:**
+- **`reasoning_effort`** (request parameter): Optional parameter to control reasoning level. Values: "low", "medium", "high". *Note: May not be supported by all Pollinations endpoints.*
+- **`reasoning_content`** (response field): Contains the model's actual reasoning/thinking process when available.
 
 ```python
 response = client.chat.completions.create(
     messages=[{"role": "user", "content": "Solve: 15 * 24"}],
-    reasoning_effort="high"  # "low", "medium", or "high"
+    reasoning_effort="high"  # Optional: "low", "medium", or "high"
+                             # May not be supported by all endpoints
 )
 
-# Access reasoning
-print(f"Reasoning: {response.choices[0].message.reasoning_content}")
+# Access reasoning (if provided by the model)
+if response.choices[0].message.reasoning_content:
+    print(f"Reasoning: {response.choices[0].message.reasoning_content}")
 print(f"Answer: {response.choices[0].message.content}")
 ```
+
+**Note:** Some models may automatically provide `reasoning_content` in responses without requiring the `reasoning_effort` parameter. The availability depends on the model being used.
 
 ### Streaming Support
 
