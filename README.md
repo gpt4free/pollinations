@@ -476,8 +476,9 @@ This is an unofficial wrapper for Pollinations AI. For official information abou
 
 ## Related Projects
 
+- [pollinations](https://github.com/pollinations/pollinations) - Open-Source Gen-AI Platform
 - [gpt4free](https://github.com/xtekky/gpt4free) - Collection of free AI APIs
-- [g4f.dev](https://github.com/gpt4free/g4f.dev) - Free AI endpoints
+- [gpt4free/g4f.dev](https://github.com/gpt4free/g4f.dev) - Free AI endpoints
 
 ## Support
 
