@@ -238,29 +238,6 @@ Generate text using a language model.
 
 **Returns:** Generated text (str)
 
-#### `generate_text_stream(prompt, model=None, system=None, temperature=None, max_tokens=None, seed=None, json=False)`
-
-Generate text using a language model with streaming support.
-
-**Parameters:**
-- `prompt` (str): Input text prompt
-- `model` (str, optional): Model name to use
-- `system` (str, optional): System message to set context
-- `temperature` (float, optional): Sampling temperature 0-1 (higher = more creative)
-- `max_tokens` (int, optional): Maximum tokens to generate
-- `seed` (int, optional): Random seed for reproducibility
-- `json` (bool): If True, output will be formatted as JSON
-
-**Returns:** Iterator of ChatCompletionChunk objects with delta content
-
-**Example:**
-```python
-stream = client.generate_text_stream("Tell me a story")
-for chunk in stream:
-    if chunk.choices[0].delta.content:
-        print(chunk.choices[0].delta.content, end="", flush=True)
-```
-
 #### `generate_image(prompt, model=None, width=None, height=None, seed=None, nologo=False, private=False, enhance=False, negative_prompt=None, quality=None, transparent=False, guidance_scale=None, nofeed=False, safe=False, image=None, duration=None, aspect_ratio=None, audio=False)`
 
 Generate an image or video from a text prompt.
