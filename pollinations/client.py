@@ -1,12 +1,11 @@
 """Main client for Pollinations AI API."""
 
 import urllib.parse
-from typing import Optional, List, Dict, Any, Iterator
+from typing import Optional, List, Dict, Any
 import requests
-import json
 
 from .exceptions import APIError, ModelNotFoundError
-from .openai_compat import Images, Chat, ChatCompletionChunk, ChatCompletionChunkDelta
+from .openai_compat import Images, Chat
 
 
 class Pollinations:
@@ -152,7 +151,7 @@ class Pollinations:
         width: Optional[int] = None,
         height: Optional[int] = None,
         seed: Optional[int] = None,
-        nologo: bool = False,
+        nologo: bool = True,
         private: bool = False,
         enhance: bool = False,
         validate_model: bool = False,
@@ -164,7 +163,7 @@ class Pollinations:
         safe: bool = False,
         image: Optional[str] = None,
         duration: Optional[int] = None,
-        aspectRatio: Optional[str] = None,
+        aspect_ratio: Optional[str] = None,
         audio: bool = False
     ) -> str:
         """
@@ -188,7 +187,7 @@ class Pollinations:
             safe: If True, enable safety content filters (optional)
             image: Reference image URL(s) for image-to-image. Comma/pipe separated for multiple (optional)
             duration: Video duration in seconds (for video models) (optional)
-            aspectRatio: Video aspect ratio - "16:9" or "9:16" (for video models) (optional)
+            aspect_ratio: Video aspect ratio - "16:9" or "9:16" (for video models) (optional)
             audio: If True, enable audio generation for video (veo only) (optional)
             
         Returns:
@@ -241,8 +240,8 @@ class Pollinations:
             params.append(f"image={urllib.parse.quote(image)}")
         if duration is not None:
             params.append(f"duration={duration}")
-        if aspectRatio:
-            params.append(f"aspectRatio={aspectRatio}")
+        if aspect_ratio:
+            params.append(f"aspectRatio={aspect_ratio}")
         if audio:
             params.append("audio=true")
         
@@ -340,7 +339,7 @@ class Pollinations:
         temperature: Optional[float] = None,
         max_tokens: Optional[int] = None,
         seed: Optional[int] = None,
-        jsonMode: bool = False
+        json: bool = False
     ) -> str:
         """
         Generate text using a language model.
@@ -352,7 +351,7 @@ class Pollinations:
             temperature: Sampling temperature 0-1 (optional, higher = more creative)
             max_tokens: Maximum tokens to generate (optional)
             seed: Random seed for reproducibility (optional)
-            jsonMode: If True, output will be formatted as JSON (optional)
+            json: If True, output will be formatted as JSON (optional)
             
         Returns:
             Generated text response
@@ -360,8 +359,8 @@ class Pollinations:
         Raises:
             APIError: If the API request fails
         """
-        url = f"{self.TEXT_BASE_URL}"
-        
+        url = self.GEN_TEXT_URL if self.api_key else self.TEXT_BASE_URL
+
         params = {
             "messages": [{"role": "user", "content": prompt}]
         }
@@ -376,8 +375,8 @@ class Pollinations:
             params["max_tokens"] = max_tokens
         if seed is not None:
             params["seed"] = seed
-        if jsonMode:
-            params["jsonMode"] = True
+        if json:
+            params["response_format"] = {"mode": "json_object"}
         
         try:
             response = requests.post(url, json=params, headers=self._get_headers(), timeout=self.timeout)
@@ -385,120 +384,3 @@ class Pollinations:
             return response.text
         except requests.RequestException as e:
             raise APIError(f"Failed to generate text: {str(e)}", self._get_status_code(e))
-    
-    def generate_text_stream(
-        self,
-        prompt: str,
-        model: Optional[str] = None,
-        system: Optional[str] = None,
-        temperature: Optional[float] = None,
-        max_tokens: Optional[int] = None,
-        seed: Optional[int] = None,
-        jsonMode: bool = False
-    ) -> Iterator[ChatCompletionChunk]:
-        """
-        Generate text using a language model with streaming.
-        
-        Args:
-            prompt: Input text prompt
-            model: Model name to use (optional, uses default if not specified)
-            system: System message to set context (optional)
-            temperature: Sampling temperature 0-1 (optional, higher = more creative)
-            max_tokens: Maximum tokens to generate (optional)
-            seed: Random seed for reproducibility (optional)
-            jsonMode: If True, output will be formatted as JSON (optional)
-            
-        Yields:
-            ChatCompletionChunk objects with delta content
-            
-        Raises:
-            APIError: If the API request fails
-        """
-        url = f"{self.TEXT_BASE_URL}"
-        
-        params = {
-            "messages": [{"role": "user", "content": prompt}],
-            "stream": True
-        }
-        
-        if system:
-            params["messages"].insert(0, {"role": "system", "content": system})
-        if model:
-            params["model"] = model
-        if temperature is not None:
-            params["temperature"] = temperature
-        if max_tokens is not None:
-            params["max_tokens"] = max_tokens
-        if seed is not None:
-            params["seed"] = seed
-        if jsonMode:
-            params["jsonMode"] = True
-        
-        try:
-            response = requests.post(
-                url, 
-                json=params, 
-                headers=self._get_headers(), 
-                timeout=self.timeout,
-                stream=True
-            )
-            response.raise_for_status()
-            
-            # Parse Server-Sent Events (SSE) stream
-            chunk_id = None
-            first_chunk = True
-            
-            for line in response.iter_lines():
-                if not line:
-                    continue
-                
-                try:
-                    line_str = line.decode('utf-8')
-                except UnicodeDecodeError as e:
-                    # Log or skip invalid UTF-8 data
-                    continue
-                
-                # SSE format: "data: {json}"
-                if line_str.startswith('data: '):
-                    json_str = line_str[6:]  # Remove "data: " prefix
-                    
-                    try:
-                        data = json.loads(json_str)
-                    except json.JSONDecodeError:
-                        # Skip malformed JSON chunks - this can happen with streaming
-                        continue
-                    
-                    # Extract chunk ID if available
-                    if 'id' in data:
-                        chunk_id = data['id']
-                    
-                    # Extract model if available
-                    chunk_model = data.get('model', model)
-                    
-                    # Extract delta and finish_reason
-                    if 'choices' in data and len(data['choices']) > 0:
-                        choice = data['choices'][0]
-                        delta = choice.get('delta', {})
-                        finish_reason = choice.get('finish_reason')
-                        
-                        # Create delta object
-                        content = delta.get('content')
-                        role = delta.get('role')
-                        
-                        # On first chunk with role, include it
-                        if first_chunk and role:
-                            chunk_delta = ChatCompletionChunkDelta(content=content, role=role)
-                            first_chunk = False
-                        else:
-                            chunk_delta = ChatCompletionChunkDelta(content=content)
-                        
-                        # Yield chunk
-                        yield ChatCompletionChunk(
-                            delta=chunk_delta,
-                            model=chunk_model,
-                            finish_reason=finish_reason,
-                            chunk_id=chunk_id
-                        )
-                        
-        except requests.RequestException as e:
-            raise APIError(f"Failed to generate text stream: {str(e)}", self._get_status_code(e))

@@ -200,54 +200,6 @@ class TestOpenAICompatibility(unittest.TestCase):
         self.assertIn("At least one user message is required", str(context.exception))
     
     @patch('pollinations.client.requests.post')
-    def test_generate_text_stream_success(self, mock_post):
-        """Test successful text streaming with native API."""
-        import json
-        
-        mock_response = Mock()
-        mock_response.ok = True
-        mock_response.status_code = 200
-        
-        # Helper to create chunks
-        def create_chunk(content=None, role=None, finish_reason=None):
-            chunk = {
-                "choices": [{
-                    "delta": {},
-                    "finish_reason": finish_reason
-                }],
-                "id": "test",
-                "model": "openai"
-            }
-            if content is not None:
-                chunk["choices"][0]["delta"]["content"] = content
-            if role is not None:
-                chunk["choices"][0]["delta"]["role"] = role
-            return f'data: {json.dumps(chunk)}'.encode('utf-8')
-        
-        # Mock streaming data
-        stream_data = [
-            create_chunk(content="", role="assistant"),
-            create_chunk(content="Test"),
-            create_chunk(content=" response"),
-            create_chunk(finish_reason="stop"),
-        ]
-        
-        mock_response.iter_lines.return_value = stream_data
-        mock_post.return_value = mock_response
-        
-        # Test streaming
-        stream = self.client.generate_text_stream("Test prompt")
-        chunks = list(stream)
-        
-        # Verify chunks
-        self.assertGreater(len(chunks), 0)
-        
-        # Verify content
-        content_chunks = [chunk.choices[0].delta.content for chunk in chunks if chunk.choices[0].delta.content]
-        self.assertIn("Test", content_chunks)
-        self.assertIn(" response", content_chunks)
-    
-    @patch('pollinations.client.requests.post')
     def test_streaming_with_finish_reason(self, mock_post):
         """Test that finish_reason is properly set in streaming."""
         import json
@@ -273,17 +225,6 @@ class TestOpenAICompatibility(unittest.TestCase):
         # Last chunk should have finish_reason
         last_chunk = chunks[-1]
         self.assertEqual(last_chunk.choices[0].finish_reason, "stop")
-    
-    @patch('pollinations.client.requests.post')
-    def test_streaming_error_handling(self, mock_post):
-        """Test error handling in streaming."""
-        import requests
-        mock_post.side_effect = requests.RequestException("Network error")
-        
-        with self.assertRaises(Exception):
-            stream = self.client.generate_text_stream("Test")
-            list(stream)  # Force evaluation
-
 
 if __name__ == '__main__':
     unittest.main()

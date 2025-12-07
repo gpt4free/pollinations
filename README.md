@@ -188,7 +188,7 @@ Generate images (OpenAI-compatible).
 
 ### Native API
 
-#### `generate_text(prompt, model=None, system=None, temperature=None, max_tokens=None, seed=None, jsonMode=False)`
+#### `generate_text(prompt, model=None, system=None, temperature=None, max_tokens=None, seed=None, json=False)`
 
 Generate text using a language model.
 
@@ -199,11 +199,11 @@ Generate text using a language model.
 - `temperature` (float, optional): Sampling temperature 0-1 (higher = more creative)
 - `max_tokens` (int, optional): Maximum tokens to generate
 - `seed` (int, optional): Random seed for reproducibility
-- `jsonMode` (bool): If True, output will be formatted as JSON
+- `json` (bool): If True, output will be formatted as JSON
 
 **Returns:** Generated text (str)
 
-#### `generate_text_stream(prompt, model=None, system=None, temperature=None, max_tokens=None, seed=None, jsonMode=False)`
+#### `generate_text_stream(prompt, model=None, system=None, temperature=None, max_tokens=None, seed=None, json=False)`
 
 Generate text using a language model with streaming support.
 
@@ -214,7 +214,7 @@ Generate text using a language model with streaming support.
 - `temperature` (float, optional): Sampling temperature 0-1 (higher = more creative)
 - `max_tokens` (int, optional): Maximum tokens to generate
 - `seed` (int, optional): Random seed for reproducibility
-- `jsonMode` (bool): If True, output will be formatted as JSON
+- `json` (bool): If True, output will be formatted as JSON
 
 **Returns:** Iterator of ChatCompletionChunk objects with delta content
 

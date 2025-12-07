@@ -62,7 +62,7 @@ response = client.chat.completions.create(
 - `max_tokens`: Maximum tokens to generate (optional)
 - `stream`: Enable streaming mode (optional, default: False)
 - `seed`: Random seed for reproducibility (optional)
-- `json_mode` or `jsonMode`: Enable JSON output (optional)
+- `json`: Enable JSON output (optional)
 
 ### Streaming Support (NEW!)
 

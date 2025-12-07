@@ -94,37 +94,6 @@ def main():
     print(f"\n\n[Received {len(chunks)} chunks]")
     
     # ========================================================================
-    # Native API Streaming
-    # ========================================================================
-    
-    print("\n5. Native API Streaming:")
-    print("-" * 70)
-    
-    stream = client.generate_text_stream(
-        "What is Python?",
-        model="openai"
-    )
-    
-    for chunk in stream:
-        if chunk.choices[0].delta.content:
-            print(chunk.choices[0].delta.content, end="", flush=True)
-    print("\n")
-    
-    print("\n6. Native API with System Message:")
-    print("-" * 70)
-    
-    stream = client.generate_text_stream(
-        "Write a short joke",
-        system="You are a friendly comedian",
-        temperature=0.8
-    )
-    
-    for chunk in stream:
-        if chunk.choices[0].delta.content:
-            print(chunk.choices[0].delta.content, end="", flush=True)
-    print("\n")
-    
-    # ========================================================================
     # Advanced Use Cases
     # ========================================================================
     

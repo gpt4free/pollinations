@@ -141,7 +141,7 @@ class TestPollinations(unittest.TestCase):
             temperature=0.7,
             max_tokens=100,
             seed=42,
-            jsonMode=True
+            json=True
         )
         
         call_args = mock_post.call_args
@@ -151,7 +151,7 @@ class TestPollinations(unittest.TestCase):
         self.assertEqual(payload['temperature'], 0.7)
         self.assertEqual(payload['max_tokens'], 100)
         self.assertEqual(payload['seed'], 42)
-        self.assertTrue(payload['jsonMode'])
+        self.assertTrue(payload['json'])
         # System message should be first
         self.assertEqual(payload['messages'][0]['role'], 'system')
         self.assertEqual(payload['messages'][0]['content'], 'You are helpful')

@@ -53,7 +53,7 @@ def main():
     print("-" * 60)
     response = client.generate_text(
         "Create a JSON object with name, age, and city fields for a fictional person",
-        jsonMode=True
+        json=True
     )
     print(response)
     
