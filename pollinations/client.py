@@ -258,7 +258,7 @@ class Pollinations:
         width: Optional[int] = None,
         height: Optional[int] = None,
         seed: Optional[int] = None,
-        nologo: bool = False,
+        nologo: bool = True,
         private: bool = False,
         enhance: bool = False,
         negative_prompt: Optional[str] = None,
@@ -272,7 +272,7 @@ class Pollinations:
         """
         Generate and download an image to a local file.
         
-        Note: Video-specific parameters (duration, aspectRatio, audio) are not supported
+        Note: Video-specific parameters (duration, aspect_ratio, audio) are not supported
         for downloads as they generate video files which should be accessed via URLs.
         
         Args:

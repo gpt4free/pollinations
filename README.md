@@ -267,7 +267,7 @@ for chunk in stream:
         print(chunk.choices[0].delta.content, end="", flush=True)
 ```
 
-#### `generate_image(prompt, model=None, width=None, height=None, seed=None, nologo=False, private=False, enhance=False, negative_prompt=None, quality=None, transparent=False, guidance_scale=None, nofeed=False, safe=False, image=None, duration=None, aspectRatio=None, audio=False)`
+#### `generate_image(prompt, model=None, width=None, height=None, seed=None, nologo=False, private=False, enhance=False, negative_prompt=None, quality=None, transparent=False, guidance_scale=None, nofeed=False, safe=False, image=None, duration=None, aspect_ratio=None, audio=False)`
 
 Generate an image or video from a text prompt.
 
@@ -288,7 +288,7 @@ Generate an image or video from a text prompt.
 - `safe` (bool): If True, enable safety content filters
 - `image` (str, optional): Reference image URL(s) for image-to-image. Comma/pipe separated for multiple
 - `duration` (int, optional): Video duration in seconds (for video models)
-- `aspectRatio` (str, optional): Video aspect ratio - "16:9" or "9:16" (for video models)
+- `aspect_ratio` (str, optional): Video aspect ratio - "16:9" or "9:16" (for video models)
 - `audio` (bool): If True, enable audio generation for video (veo only)
 
 **Returns:** URL of the generated image (str)
@@ -297,7 +297,7 @@ Generate an image or video from a text prompt.
 
 Generate and download an image to a local file.
 
-**Note:** Video-specific parameters (duration, aspectRatio, audio) are not supported for downloads as they generate video files which should be accessed via URLs.
+**Note:** Video-specific parameters (duration, aspect_ratio, audio) are not supported for downloads as they generate video files which should be accessed via URLs.
 
 **Parameters:**
 - `prompt` (str): Text description of the image to generate
