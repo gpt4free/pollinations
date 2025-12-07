@@ -454,7 +454,7 @@ See the [JavaScript README](examples/javascript/README.md) for installation and 
 
 ## API Key Support
 
-The client supports optional API keys for `gen.pollinations.ai`:
+The client supports optional API keys from https://enter.pollinations.ai:
 
 ```python
 # Without API key (free tier, uses image.pollinations.ai and text.pollinations.ai)
