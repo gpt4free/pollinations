@@ -12,7 +12,9 @@ Pollinations provides free, unlimited access to various AI models for text and i
 
 - 🎨 **Image Generation**: Create images from text descriptions
 - 💬 **Text Generation**: Generate text using various language models
-- 🌊 **Streaming Support**: Stream text responses in real-time (NEW!)
+- 🌊 **Streaming Support**: Stream text responses in real-time
+- 🛠️ **Tool Calls**: Function calling support for agentic workflows (NEW!)
+- 🧠 **Reasoning**: Chain-of-thought reasoning with reasoning models (NEW!)
 - 🔄 **No API Key Required**: Completely free to use (API key optional for advanced features)
 - 🚀 **Simple API**: Easy-to-use interface with both native and OpenAI-compatible APIs
 - 🎯 **Multiple Models**: Access to various AI models
@@ -59,7 +61,7 @@ response = client.chat.completions.create(
 )
 print(response.choices[0].message.content)
 
-# Streaming chat completion (NEW!)
+# Streaming chat completion
 stream = client.chat.completions.create(
     messages=[{"role": "user", "content": "Write a short story"}],
     stream=True
@@ -67,6 +69,37 @@ stream = client.chat.completions.create(
 for chunk in stream:
     if chunk.choices[0].delta.content:
         print(chunk.choices[0].delta.content, end="", flush=True)
+
+# Tool calls (function calling) - NEW!
+tools = [{
+    "type": "function",
+    "function": {
+        "name": "get_weather",
+        "description": "Get weather for a location",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "location": {"type": "string"}
+            }
+        }
+    }
+}]
+response = client.chat.completions.create(
+    messages=[{"role": "user", "content": "What's the weather in Paris?"}],
+    tools=tools
+)
+if response.choices[0].message.tool_calls:
+    tool_call = response.choices[0].message.tool_calls[0]
+    print(f"Tool: {tool_call.function.name}, Args: {tool_call.function.arguments}")
+
+# Reasoning - NEW!
+response = client.chat.completions.create(
+    messages=[{"role": "user", "content": "Solve: 15 * 24"}],
+    reasoning_effort="high"
+)
+if response.choices[0].message.reasoning_content:
+    print(f"Reasoning: {response.choices[0].message.reasoning_content}")
+print(f"Answer: {response.choices[0].message.content}")
 
 # Image generation (OpenAI-compatible)
 response = client.images.generate(
@@ -158,7 +191,7 @@ Create a new Pollinations client.
 
 The client provides OpenAI-compatible interfaces that can be used as drop-in replacements for OpenAI's API.
 
-#### `client.chat.completions.create(messages, model=None, temperature=None, max_tokens=None, stream=False, **kwargs)`
+#### `client.chat.completions.create(messages, model=None, temperature=None, max_tokens=None, stream=False, tools=None, tool_choice=None, reasoning_effort=None, **kwargs)`
 
 Create a chat completion (OpenAI-compatible).
 
@@ -168,10 +201,18 @@ Create a chat completion (OpenAI-compatible).
 - `temperature` (float, optional): Sampling temperature 0-1
 - `max_tokens` (int, optional): Maximum tokens to generate
 - `stream` (bool): Enable streaming mode (default: False)
+- `tools` (list, optional): List of tools/functions the model can call
+- `tool_choice` (str or dict, optional): Controls which tool is called ("auto", "none", or specific tool)
+- `reasoning_effort` (str, optional): Level of reasoning for reasoning models ("low", "medium", "high")
 
 **Returns:** 
 - ChatCompletion object with `choices[0].message.content` (if stream=False)
 - Iterator of ChatCompletionChunk objects (if stream=True)
+
+**Response fields:**
+- `choices[0].message.content`: The generated text response
+- `choices[0].message.tool_calls`: List of tool calls requested by the model (if any)
+- `choices[0].message.reasoning_content`: The model's reasoning process (if reasoning_effort is set)
 
 #### `client.images.generate(prompt, model=None, size=None, n=1, **kwargs)`
 
@@ -277,12 +318,114 @@ Get list of available text generation models.
 
 **Returns:** List of model information dictionaries
 
+## Tool Calls (Function Calling)
+
+Tool calls enable the model to use external functions/tools to answer questions or perform tasks.
+
+### Defining Tools
+
+```python
+tools = [
+    {
+        "type": "function",
+        "function": {
+            "name": "get_weather",
+            "description": "Get the current weather for a location",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "location": {
+                        "type": "string",
+                        "description": "City name"
+                    },
+                    "unit": {
+                        "type": "string",
+                        "enum": ["celsius", "fahrenheit"]
+                    }
+                },
+                "required": ["location"]
+            }
+        }
+    }
+]
+```
+
+### Using Tool Calls
+
+```python
+# Request with tools
+response = client.chat.completions.create(
+    messages=[{"role": "user", "content": "What's the weather in Tokyo?"}],
+    tools=tools
+)
+
+# Check if model wants to call a tool
+if response.choices[0].message.tool_calls:
+    for tool_call in response.choices[0].message.tool_calls:
+        print(f"Function: {tool_call.function.name}")
+        print(f"Arguments: {tool_call.function.arguments}")
+        # Execute the function and send results back
+```
+
+### Controlling Tool Choice
+
+```python
+# Let model decide (default)
+tool_choice="auto"
+
+# Force model to use tools
+tool_choice="required"
+
+# Prevent tool use
+tool_choice="none"
+
+# Force specific tool
+tool_choice={"type": "function", "function": {"name": "get_weather"}}
+```
+
+## Reasoning
+
+Reasoning models expose their chain-of-thought process, showing how they arrived at an answer.
+
+### Using Reasoning
+
+```python
+response = client.chat.completions.create(
+    messages=[{"role": "user", "content": "Calculate the factorial of 5"}],
+    reasoning_effort="high"  # Options: "low", "medium", "high"
+)
+
+# Access reasoning process
+print(f"Reasoning: {response.choices[0].message.reasoning_content}")
+print(f"Answer: {response.choices[0].message.content}")
+```
+
+### Streaming with Reasoning
+
+```python
+stream = client.chat.completions.create(
+    messages=[{"role": "user", "content": "Solve this problem"}],
+    reasoning_effort="medium",
+    stream=True
+)
+
+for chunk in stream:
+    # Reasoning tokens
+    if chunk.choices[0].delta.reasoning_content:
+        print(f"[Reasoning] {chunk.choices[0].delta.reasoning_content}")
+    
+    # Answer tokens
+    if chunk.choices[0].delta.content:
+        print(chunk.choices[0].delta.content, end="", flush=True)
+```
+
 ## Examples
 
 See the [examples](examples/) directory for more usage examples:
 
 - [OpenAI-Compatible API](examples/openai_compatible.py) - OpenAI-compatible interface examples
-- [Streaming Examples](examples/streaming.py) - **NEW!** Real-time streaming text generation
+- [Tool Calls and Reasoning](examples/tool_calls_and_reasoning.py) - **NEW!** Function calling and reasoning examples
+- [Streaming Examples](examples/streaming.py) - Real-time streaming text generation
 - [Text Generation Examples](examples/text_generation.py)
 - [Image Generation Examples](examples/image_generation.py)
 - [List Models](examples/list_models.py)

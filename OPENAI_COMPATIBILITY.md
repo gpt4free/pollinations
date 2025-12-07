@@ -63,8 +63,78 @@ response = client.chat.completions.create(
 - `stream`: Enable streaming mode (optional, default: False)
 - `seed`: Random seed for reproducibility (optional)
 - `json`: Enable JSON output (optional)
+- `tools`: List of tools/functions the model can call (optional) **NEW!**
+- `tool_choice`: Controls which tool is called (optional) **NEW!**
+- `reasoning_effort`: Level of reasoning - "low", "medium", "high" (optional) **NEW!**
 
-### Streaming Support (NEW!)
+### Tool Calls (Function Calling) **NEW!**
+
+Tool calls allow the model to use external functions to answer questions.
+
+#### Defining Tools
+
+```python
+tools = [{
+    "type": "function",
+    "function": {
+        "name": "get_weather",
+        "description": "Get weather for a location",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "location": {"type": "string", "description": "City name"}
+            },
+            "required": ["location"]
+        }
+    }
+}]
+
+response = client.chat.completions.create(
+    messages=[{"role": "user", "content": "Weather in Paris?"}],
+    tools=tools
+)
+
+# Check for tool calls
+if response.choices[0].message.tool_calls:
+    for tool_call in response.choices[0].message.tool_calls:
+        print(f"Function: {tool_call.function.name}")
+        print(f"Arguments: {tool_call.function.arguments}")
+```
+
+#### Tool Choice
+
+Control which tools the model can use:
+
+```python
+# Auto (default) - model decides
+tool_choice="auto"
+
+# Force tool use
+tool_choice="required"
+
+# Disable tools
+tool_choice="none"
+
+# Force specific tool
+tool_choice={"type": "function", "function": {"name": "get_weather"}}
+```
+
+### Reasoning Support **NEW!**
+
+Access the model's chain-of-thought reasoning process:
+
+```python
+response = client.chat.completions.create(
+    messages=[{"role": "user", "content": "Solve: 15 * 24"}],
+    reasoning_effort="high"  # "low", "medium", or "high"
+)
+
+# Access reasoning
+print(f"Reasoning: {response.choices[0].message.reasoning_content}")
+print(f"Answer: {response.choices[0].message.content}")
+```
+
+### Streaming Support
 
 Streaming allows you to receive the response in real-time as it's being generated.
 
@@ -121,9 +191,20 @@ ChatCompletion(
             index=0,
             message=ChatCompletionMessage(
                 role="assistant",
-                content="Generated response text..."
+                content="Generated response text...",
+                tool_calls=[  # Present when model requests tool calls
+                    ToolCall(
+                        id="call_123",
+                        type="function",
+                        function=Function(
+                            name="get_weather",
+                            arguments='{"location": "Paris"}'
+                        )
+                    )
+                ],
+                reasoning_content="Step-by-step reasoning..."  # Present with reasoning_effort
             ),
-            finish_reason="stop"
+            finish_reason="stop"  # or "tool_calls" when requesting tools
         )
     ],
     usage=None
@@ -145,7 +226,9 @@ ChatCompletionChunk(
             index=0,
             delta=ChatCompletionChunkDelta(
                 content="text chunk...",
-                role="assistant"  # Only in first chunk
+                role="assistant",  # Only in first chunk
+                tool_calls=[...],  # Present when streaming tool calls
+                reasoning_content="reasoning chunk..."  # Present when streaming reasoning
             ),
             finish_reason=None  # "stop" in final chunk
         )

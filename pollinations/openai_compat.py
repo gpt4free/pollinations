@@ -21,15 +21,72 @@ class ImageResponse:
         self.created = None
 
 
+class ToolCall:
+    """OpenAI-compatible tool call."""
+    
+    def __init__(self, id: Optional[str] = None, type: Optional[str] = None, 
+                 function: Optional[Dict[str, Any]] = None, index: Optional[int] = None):
+        self.id = id
+        self.type = type
+        self.index = index
+        if function:
+            self.function = Function(function.get("name", ""), function.get("arguments", ""))
+        else:
+            self.function = None
+    
+    def to_dict(self):
+        result = {}
+        if self.id is not None:
+            result["id"] = self.id
+        if self.type is not None:
+            result["type"] = self.type
+        if self.index is not None:
+            result["index"] = self.index
+        if self.function is not None:
+            result["function"] = {
+                "name": self.function.name,
+                "arguments": self.function.arguments
+            }
+        return result
+
+
+class Function:
+    """OpenAI-compatible function definition for tool calls."""
+    
+    def __init__(self, name: str, arguments: str):
+        self.name = name
+        self.arguments = arguments
+
+
 class ChatCompletionMessage:
     """OpenAI-compatible chat message."""
     
-    def __init__(self, role: str, content: str):
+    def __init__(self, role: str, content: Optional[str] = None, 
+                 tool_calls: Optional[List[Dict[str, Any]]] = None,
+                 reasoning_content: Optional[str] = None):
         self.role = role
         self.content = content
+        self.tool_calls = None
+        if tool_calls:
+            self.tool_calls = [
+                ToolCall(
+                    id=tc.get("id"), 
+                    type=tc.get("type"), 
+                    function=tc.get("function"),
+                    index=tc.get("index")
+                ) for tc in tool_calls
+            ]
+        self.reasoning_content = reasoning_content
     
     def to_dict(self):
-        return {"role": self.role, "content": self.content}
+        result = {"role": self.role}
+        if self.content is not None:
+            result["content"] = self.content
+        if self.tool_calls:
+            result["tool_calls"] = [tc.to_dict() for tc in self.tool_calls]
+        if self.reasoning_content:
+            result["reasoning_content"] = self.reasoning_content
+        return result
 
 
 class ChatCompletionChoice:
@@ -60,7 +117,9 @@ class ChatCompletion:
                 message_data = choice_data.get("message", {})
                 message = ChatCompletionMessage(
                     role=message_data.get("role", "assistant"),
-                    content=message_data.get("content", "")
+                    content=message_data.get("content"),
+                    tool_calls=message_data.get("tool_calls"),
+                    reasoning_content=message_data.get("reasoning_content")
                 )
                 choice = ChatCompletionChoice(
                     message=message,
@@ -81,9 +140,22 @@ class ChatCompletion:
 class ChatCompletionChunkDelta:
     """OpenAI-compatible chat completion chunk delta."""
     
-    def __init__(self, content: Optional[str] = None, role: Optional[str] = None):
+    def __init__(self, content: Optional[str] = None, role: Optional[str] = None,
+                 tool_calls: Optional[List[Dict[str, Any]]] = None,
+                 reasoning_content: Optional[str] = None):
         self.content = content
         self.role = role
+        self.tool_calls = None
+        if tool_calls:
+            self.tool_calls = [
+                ToolCall(
+                    id=tc.get("id"), 
+                    type=tc.get("type"), 
+                    function=tc.get("function"),
+                    index=tc.get("index")
+                ) for tc in tool_calls
+            ]
+        self.reasoning_content = reasoning_content
 
 
 class ChatCompletionChunkChoice:
@@ -183,6 +255,9 @@ class ChatCompletions:
         temperature: Optional[float] = None,
         max_tokens: Optional[int] = None,
         stream: bool = False,
+        tools: Optional[List[Dict[str, Any]]] = None,
+        tool_choice: Optional[Union[str, Dict[str, Any]]] = None,
+        reasoning_effort: Optional[str] = None,
         **kwargs
     ) -> Union[ChatCompletion, Iterator[ChatCompletionChunk]]:
         """
@@ -194,6 +269,9 @@ class ChatCompletions:
             temperature: Sampling temperature (optional)
             max_tokens: Maximum tokens to generate (optional)
             stream: Enable streaming mode (optional)
+            tools: List of tools the model can call (optional)
+            tool_choice: Controls which tool is called (optional)
+            reasoning_effort: Level of reasoning (low, medium, high) for reasoning models (optional)
             **kwargs: Additional parameters passed to the underlying API
             
         Returns:
@@ -215,6 +293,12 @@ class ChatCompletions:
             payload["max_tokens"] = max_tokens
         if stream:
             payload["stream"] = True
+        if tools is not None:
+            payload["tools"] = tools
+        if tool_choice is not None:
+            payload["tool_choice"] = tool_choice
+        if reasoning_effort is not None:
+            payload["reasoning_effort"] = reasoning_effort
             
         # Add any additional kwargs
         payload.update(kwargs)
@@ -296,13 +380,24 @@ class ChatCompletions:
                     # Create delta object
                     content = delta.get('content')
                     role = delta.get('role')
+                    tool_calls = delta.get('tool_calls')
+                    reasoning_content = delta.get('reasoning_content')
                     
                     # On first chunk with role, include it
                     if first_chunk and role:
-                        chunk_delta = ChatCompletionChunkDelta(content=content, role=role)
+                        chunk_delta = ChatCompletionChunkDelta(
+                            content=content, 
+                            role=role, 
+                            tool_calls=tool_calls,
+                            reasoning_content=reasoning_content
+                        )
                         first_chunk = False
                     else:
-                        chunk_delta = ChatCompletionChunkDelta(content=content)
+                        chunk_delta = ChatCompletionChunkDelta(
+                            content=content,
+                            tool_calls=tool_calls,
+                            reasoning_content=reasoning_content
+                        )
                     
                     # Yield chunk
                     yield ChatCompletionChunk(
