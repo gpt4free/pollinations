@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pollinations-client"
-version = "0.1.0"
+version = "0.1.1"
 description = "Python wrapper for Pollinations AI - Free text and image generation APIs"
 readme = "README.md"
 authors = [
