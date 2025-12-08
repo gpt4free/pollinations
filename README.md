@@ -2,7 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Python 3.7+](https://img.shields.io/badge/python-3.7+-blue.svg)](https://www.python.org/downloads/)
-[![PyPI version](https://badge.fury.io/py/pollinations-client.svg)](https://badge.fury.io/py/pollinations-client)
+[![PyPI version](https://badge.fury.io/py/pollinations-client.svg?)](https://badge.fury.io/py/pollinations-client)
 
 A Python wrapper for [Pollinations AI](https://pollinations.ai/) - Free text and image generation APIs.
 
